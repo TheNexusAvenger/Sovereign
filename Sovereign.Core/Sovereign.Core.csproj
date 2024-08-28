@@ -1,0 +1,19 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+    <PropertyGroup>
+        <TargetFramework>net8.0</TargetFramework>
+        <Nullable>enable</Nullable>
+        <PublishAot>true</PublishAot>
+    </PropertyGroup>
+
+    <ItemGroup>
+      <FrameworkReference Include="Microsoft.AspNetCore.App" />
+      <ProjectReference Include="..\Bouncer\Bouncer\Bouncer.csproj" />
+      <PackageReference Include="Microsoft.EntityFrameworkCore.Sqlite" Version="8.0.8" />
+    </ItemGroup>
+
+    <ItemGroup>
+      <EmbeddedResource Include="Database/Migrations/*/*.sql" />
+    </ItemGroup>
+
+</Project>
