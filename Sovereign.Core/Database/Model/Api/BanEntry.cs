@@ -50,7 +50,7 @@ public class BanEntry
     public long ActingRobloxUserId { get; set; }
 
     /// <summary>
-    /// Ban reason that is displayed to the user.
+    /// Ban/unban reason that is displayed to the user.
     /// </summary>
     [Required]
     public string DisplayReason { get; set; } = null!;

@@ -1,17 +1,17 @@
-﻿using System.Text.Json.Serialization;
+﻿using System.Text.Json.Serialization.Metadata;
 
 namespace Sovereign.Core.Model.Response;
 
-public class BaseResponse
+public abstract class BaseResponse
 {
     /// <summary>
     /// Status of the response.
     /// </summary>
     public string Status { get; set; } = "Success";
-}
 
-[JsonSerializable(typeof(BaseResponse))]
-[JsonSourceGenerationOptions(WriteIndented = true, IncludeFields = true)]
-public partial class BaseResponseJsonContext : JsonSerializerContext
-{
+    /// <summary>
+    /// Returns the JSON type information of the response.
+    /// </summary>
+    /// <returns>The JSON type information of the response.</returns>
+    public abstract JsonTypeInfo GetJsonTypeInfo();
 }

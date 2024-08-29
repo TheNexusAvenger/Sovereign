@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Text.Json.Serialization;
+using System.Text.Json.Serialization.Metadata;
 
 namespace Sovereign.Core.Model.Response;
 
@@ -38,9 +39,12 @@ public class ValidationErrorCheck
 public class ValidationErrorResponse : BaseResponse
 {
     /// <summary>
-    /// Status of the response.
+    /// Creates a validation error response.
     /// </summary>
-    public new string Status { get; set; } = "ValidationError";
+    public ValidationErrorResponse()
+    {
+        this.Status = "ValidationError";
+    }
 
     /// <summary>
     /// Validation errors to return.
@@ -72,6 +76,15 @@ public class ValidationErrorResponse : BaseResponse
         {
             Errors = validationErrors,
         };
+    }
+
+    /// <summary>
+    /// Returns the JSON type information of the response.
+    /// </summary>
+    /// <returns>The JSON type information of the response.</returns>
+    public override JsonTypeInfo GetJsonTypeInfo()
+    {
+        return ValidationErrorResponseJsonContext.Default.ValidationErrorResponse;
     }
 }
 
