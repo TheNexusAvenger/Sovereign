@@ -18,7 +18,8 @@ public class BansContext : BaseContext
     /// <summary>
     /// Creates a bans SQLite context.
     /// </summary>
-    public BansContext() : base("Bans")
+    /// <param name="filePath">File path to use for the context.</param>
+    public BansContext(string? filePath = null) : base("Bans", filePath)
     {
         
     }

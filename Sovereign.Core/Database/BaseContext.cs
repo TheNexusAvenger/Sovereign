@@ -35,14 +35,21 @@ public class BaseContext : DbContext
     /// Name of the database.
     /// </summary>
     private readonly string? _databaseName;
+    
+    /// <summary>
+    /// Custom path of the file.
+    /// </summary>
+    private readonly string? _filePath;
 
     /// <summary>
     /// Creates a base SQLite context.
     /// </summary>
     /// <param name="databaseName">Name of the database.</param>
-    public BaseContext(string databaseName)
+    /// <param name="filePath">File path to use for the context.</param>
+    public BaseContext(string databaseName, string? filePath = null)
     {
         this._databaseName = databaseName;
+        this._filePath = filePath;
     }
     
     /// <summary>
@@ -56,7 +63,7 @@ public class BaseContext : DbContext
         {
             filePath = Path.Combine(databaseDirectoryLocation, filePath);
         }
-        optionsBuilder.UseSqlite($"Data Source=\"{filePath}\"");
+        optionsBuilder.UseSqlite($"Data Source=\"{this._filePath ?? filePath}\"");
     }
 
     /// <summary>

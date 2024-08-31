@@ -1,14 +1,34 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
+using System.Linq;
 using System.Threading.Tasks;
+using Bouncer.Diagnostic;
+using Bouncer.Expression;
+using Bouncer.Parser;
+using Microsoft.EntityFrameworkCore;
+using Sovereign.Api.Bans.Configuration;
+using Sovereign.Api.Bans.Web.Server.Controller.Shim;
 using Sovereign.Api.Bans.Web.Server.Model;
 using Sovereign.Core.Model.Response;
+using Sprache;
 
 namespace Sovereign.Api.Bans.Web.Server.Controller;
 
 public class BanController
 {
-    public static async Task<JsonResponse> HandleBanRequest(BanRequest request)
+    /// <summary>
+    /// Resources for the controller.
+    /// Meant to be replaced during unit tests.
+    /// </summary>
+    public IBanControllerResources ControllerResources { get; set; }= new BanControllerResources();
+    
+    /// <summary>
+    /// Handles a ban request.
+    /// </summary>
+    public async Task<JsonResponse> HandleBanRequest(BanRequest request)
     {
+        // TODO: Return 401 if the API header is invalid.
+        
         // Return a validation error.
         var validationError = ValidationErrorResponse.GetValidationErrorResponse(new List<ValidationErrorCheck>()
         {
@@ -97,8 +117,67 @@ public class BanController
             return new JsonResponse(validationError, 400);
         }
         
-        // TODO: Authentication error (401 - can't find authorization).
-        // TODO: Authorization error (403 - user can't ban).
+        // Get the domain for the action.
+        var configuration = this.ControllerResources.GetConfiguration();
+        var domain = request.Domain!.ToLower();
+        var domains = configuration.Domains;
+        if (domains == null)
+        {
+            Logger.Error("Domains was not configured in the configuration.");
+            return new JsonResponse(new SimpleResponse("ServerConfigurationError"), 503);
+        }
+        var domainData = domains.FirstOrDefault(domainData => domainData.Name != null && domainData.Name.ToLower() == domain);
+        if (domainData == null)
+        {
+            return SimpleResponse.UnauthorizedResponse;
+        }
+        
+        // Convert the Roblox user authorization.
+        // Return 401 if the linked Roblox account can be verified or the Roblox id is invalid.
+        await using var bansContext = this.ControllerResources.GetBansContext();
+        var authenticationMethod = request.Authentication!.Method!.ToLower();
+        var authenticationData = request.Authentication!.Data!;
+        if (authenticationMethod != "roblox")
+        {
+            var authenticationLink = await bansContext.ExternalAccountLinks.FirstOrDefaultAsync(link => link.Domain.ToLower() == domain && link.LinkMethod.ToLower() == authenticationMethod && link.LinkData.ToLower() == authenticationData);
+            if (authenticationLink == null)
+            {
+                return SimpleResponse.UnauthorizedResponse;
+            }
+            authenticationData = authenticationLink.RobloxUserId.ToString();
+        }
+        if (!long.TryParse(authenticationData, out var robloxId))
+        {
+            return SimpleResponse.UnauthorizedResponse;
+        }
+        
+        // Verify the Roblox user can handle the ban.
+        if (domainData.Rules == null)
+        {
+            Logger.Error($"Domain \"{domainData.Name}\" was does not have rules.");
+            return new JsonResponse(new SimpleResponse("ServerConfigurationError"), 503);
+        }
+        var action = AuthenticationRuleAction.Deny;
+        foreach (var rule in domainData.Rules)
+        {
+            try
+            {
+                if (!Condition.FromParsedCondition(ExpressionParser.FullExpressionParser.Parse(rule.Rule)).Evaluate(robloxId)) continue;
+                action = AuthenticationRuleAction.Allow;
+                break;
+            }
+            catch (Exception e)
+            {
+                Logger.Error($"Error evaluating rule for {robloxId} in domain \"{domainData.Name}\".\n{e}");
+                return new JsonResponse(new SimpleResponse("ServerError"), 503); 
+            }
+        }
+        if (action == AuthenticationRuleAction.Deny)
+        {
+            
+            return SimpleResponse.ForbiddenResponse;
+        }
+        
         // TODO: Handle request
         return null;
     }

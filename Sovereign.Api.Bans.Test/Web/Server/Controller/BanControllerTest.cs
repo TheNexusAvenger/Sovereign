@@ -1,5 +1,7 @@
 ﻿using System.Collections.Generic;
 using NUnit.Framework;
+using Sovereign.Api.Bans.Configuration;
+using Sovereign.Api.Bans.Test.Web.Server.Controller.Shim;
 using Sovereign.Api.Bans.Web.Server.Controller;
 using Sovereign.Api.Bans.Web.Server.Model;
 using Sovereign.Core.Model;
@@ -9,10 +11,25 @@ namespace Sovereign.Api.Bans.Test.Web.Server.Controller;
 
 public class BanControllerTest
 {
+    private TestBanControllerResources _testResources;
+    private BanController _banController;
+
+    [SetUp]
+    public void SetUp()
+    {
+        this._testResources = new TestBanControllerResources();
+        this._banController = new BanController()
+        {
+            ControllerResources = this._testResources,
+        };
+    }
+    
+    // TODO: Invalid headers.
+    
     [Test]
     public void HandleBanRequestAllFieldsMissing()
     {
-        var response = BanController.HandleBanRequest(new BanRequest()).Result;
+        var response = this._banController.HandleBanRequest(new BanRequest()).Result;
         var validationErrorResponse = (ValidationErrorResponse) response.Response;
         Assert.That(response.StatusCode, Is.EqualTo(400));
         Assert.That(validationErrorResponse.Errors.Count, Is.EqualTo(4));
@@ -29,7 +46,7 @@ public class BanControllerTest
     [Test]
     public void HandleBanRequestAllSubFieldsMissing()
     {
-        var response = BanController.HandleBanRequest(new BanRequest()
+        var response = this._banController.HandleBanRequest(new BanRequest()
         {
             Domain = "Domain",
             Authentication = new BanRequestAuthentication(),
@@ -56,7 +73,7 @@ public class BanControllerTest
     [Test]
     public void HandleBanRequestAllInvalidSubFieldsMissing()
     {
-        var response = BanController.HandleBanRequest(new BanRequest()
+        var response = this._banController.HandleBanRequest(new BanRequest()
         {
             Domain = "Domain",
             Authentication = new BanRequestAuthentication()
@@ -84,4 +101,265 @@ public class BanControllerTest
         Assert.That(validationErrorResponse.Errors[1].Path, Is.EqualTo("action.duration"));
         Assert.That(validationErrorResponse.Errors[1].Message, Is.EqualTo("action.duration was not a positive number."));
     }
+    
+    [Test]
+    public void HandleBanRequestNoDomains()
+    {
+        this._testResources.Configuration = new BansConfiguration()
+        {
+            Domains = null,
+        };
+        var response = this._banController.HandleBanRequest(new BanRequest()
+        {
+            Domain = "TestDomain",
+            Authentication = new BanRequestAuthentication()
+            {
+                Method = "Roblox",
+                Data = "12345",
+            },
+            Action = new BanRequestAction()
+            {
+                Type = BanAction.Ban,
+                UserIds = new List<long>() { 23456 },
+            },
+            Reason = new BanRequestReason()
+            {
+                Display = "Test Message 1",
+                Private = "Test Message 2",
+            },
+        }).Result;
+        var simpleResponse = response.Response;
+        Assert.That(response.StatusCode, Is.EqualTo(503));
+        Assert.That(simpleResponse.Status, Is.EqualTo("ServerConfigurationError"));
+    }
+    
+    [Test]
+    public void HandleBanRequestMissingDomain()
+    {
+        this._testResources.Configuration = new BansConfiguration()
+        {
+            Domains = new List<DomainConfiguration>(),
+        };
+        var response = this._banController.HandleBanRequest(new BanRequest()
+        {
+            Domain = "TestDomain",
+            Authentication = new BanRequestAuthentication()
+            {
+                Method = "Roblox",
+                Data = "12345",
+            },
+            Action = new BanRequestAction()
+            {
+                Type = BanAction.Ban,
+                UserIds = new List<long>() { 23456 },
+            },
+            Reason = new BanRequestReason()
+            {
+                Display = "Test Message 1",
+                Private = "Test Message 2",
+            },
+        }).Result;
+        var simpleResponse = response.Response;
+        Assert.That(response.StatusCode, Is.EqualTo(401));
+        Assert.That(simpleResponse.Status, Is.EqualTo("Unauthorized"));
+    }
+    
+    [Test]
+    public void HandleBanRequestNoLinkData()
+    {
+        this._testResources.Configuration = new BansConfiguration()
+        {
+            Domains = new List<DomainConfiguration>()
+            {
+                new DomainConfiguration()
+                {
+                    Name = "TestDomain",
+                    Rules = new List<AuthenticationRuleEntry>(),
+                },
+            },
+        };
+        var response = this._banController.HandleBanRequest(new BanRequest()
+        {
+            Domain = "TestDomain",
+            Authentication = new BanRequestAuthentication()
+            {
+                Method = "ExternalLink",
+                Data = "Unknown",
+            },
+            Action = new BanRequestAction()
+            {
+                Type = BanAction.Ban,
+                UserIds = new List<long>() { 23456 },
+            },
+            Reason = new BanRequestReason()
+            {
+                Display = "Test Message 1",
+                Private = "Test Message 2",
+            },
+        }).Result;
+        var simpleResponse = response.Response;
+        Assert.That(response.StatusCode, Is.EqualTo(401));
+        Assert.That(simpleResponse.Status, Is.EqualTo("Unauthorized"));
+    }
+    
+    [Test]
+    public void HandleBanRequestInvalidRobloxId()
+    {
+        this._testResources.Configuration = new BansConfiguration()
+        {
+            Domains = new List<DomainConfiguration>()
+            {
+                new DomainConfiguration()
+                {
+                    Name = "TestDomain",
+                    Rules = new List<AuthenticationRuleEntry>(),
+                },
+            },
+        };
+        var response = this._banController.HandleBanRequest(new BanRequest()
+        {
+            Domain = "TestDomain",
+            Authentication = new BanRequestAuthentication()
+            {
+                Method = "Roblox",
+                Data = "Unknown",
+            },
+            Action = new BanRequestAction()
+            {
+                Type = BanAction.Ban,
+                UserIds = new List<long>() { 23456 },
+            },
+            Reason = new BanRequestReason()
+            {
+                Display = "Test Message 1",
+                Private = "Test Message 2",
+            },
+        }).Result;
+        var simpleResponse = response.Response;
+        Assert.That(response.StatusCode, Is.EqualTo(401));
+        Assert.That(simpleResponse.Status, Is.EqualTo("Unauthorized"));
+    }
+    
+    [Test]
+    public void HandleBanRequestNullRules()
+    {
+        this._testResources.Configuration = new BansConfiguration()
+        {
+            Domains = new List<DomainConfiguration>()
+            {
+                new DomainConfiguration()
+                {
+                    Name = "TestDomain",
+                    Rules = null,
+                },
+            },
+        };
+        var response = this._banController.HandleBanRequest(new BanRequest()
+        {
+            Domain = "TestDomain",
+            Authentication = new BanRequestAuthentication()
+            {
+                Method = "Roblox",
+                Data = "12345",
+            },
+            Action = new BanRequestAction()
+            {
+                Type = BanAction.Ban,
+                UserIds = new List<long>() { 23456 },
+            },
+            Reason = new BanRequestReason()
+            {
+                Display = "Test Message 1",
+                Private = "Test Message 2",
+            },
+        }).Result;
+        var simpleResponse = response.Response;
+        Assert.That(response.StatusCode, Is.EqualTo(503));
+        Assert.That(simpleResponse.Status, Is.EqualTo("ServerConfigurationError"));
+    }
+    
+    [Test]
+    public void HandleBanRequestInvalidRule()
+    {
+        this._testResources.Configuration = new BansConfiguration()
+        {
+            Domains = new List<DomainConfiguration>()
+            {
+                new DomainConfiguration()
+                {
+                    Name = "TestDomain",
+                    Rules = new List<AuthenticationRuleEntry>()
+                    {
+                        new AuthenticationRuleEntry()
+                        {
+                            Rule = "InvalidRule",
+                        },
+                    },
+                },
+            },
+        };
+        var response = this._banController.HandleBanRequest(new BanRequest()
+        {
+            Domain = "TestDomain",
+            Authentication = new BanRequestAuthentication()
+            {
+                Method = "Roblox",
+                Data = "12345",
+            },
+            Action = new BanRequestAction()
+            {
+                Type = BanAction.Ban,
+                UserIds = new List<long>() { 23456 },
+            },
+            Reason = new BanRequestReason()
+            {
+                Display = "Test Message 1",
+                Private = "Test Message 2",
+            },
+        }).Result;
+        var simpleResponse = response.Response;
+        Assert.That(response.StatusCode, Is.EqualTo(503));
+        Assert.That(simpleResponse.Status, Is.EqualTo("ServerError"));
+    }
+    
+    [Test]
+    public void HandleBanRequestUnauthorized()
+    {
+        this._testResources.Configuration = new BansConfiguration()
+        {
+            Domains = new List<DomainConfiguration>()
+            {
+                new DomainConfiguration()
+                {
+                    Name = "TestDomain",
+                    Rules = new List<AuthenticationRuleEntry>(),
+                },
+            },
+        };
+        var response = this._banController.HandleBanRequest(new BanRequest()
+        {
+            Domain = "TestDomain",
+            Authentication = new BanRequestAuthentication()
+            {
+                Method = "Roblox",
+                Data = "12345",
+            },
+            Action = new BanRequestAction()
+            {
+                Type = BanAction.Ban,
+                UserIds = new List<long>() { 23456 },
+            },
+            Reason = new BanRequestReason()
+            {
+                Display = "Test Message 1",
+                Private = "Test Message 2",
+            },
+        }).Result;
+        var simpleResponse = response.Response;
+        Assert.That(response.StatusCode, Is.EqualTo(403));
+        Assert.That(simpleResponse.Status, Is.EqualTo("Forbidden"));
+    }
+    
+    // TODO: Direct Roblox id.
+    // TODO: Link data.
 }
