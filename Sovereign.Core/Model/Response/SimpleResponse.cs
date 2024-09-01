@@ -6,6 +6,11 @@ namespace Sovereign.Core.Model.Response;
 public class SimpleResponse : BaseResponse
 {
     /// <summary>
+    /// Response for a malformed request.
+    /// </summary>
+    public static readonly JsonResponse MalformedRequestResponse = new JsonResponse(new SimpleResponse("MalformedRequest"), 400);
+    
+    /// <summary>
     /// Response for an unauthorized response.
     /// Used for when a user can be confirmed.
     /// </summary>

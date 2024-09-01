@@ -11,6 +11,7 @@ using Sovereign.Api.Bans.Web.Server.Controller.Shim;
 using Sovereign.Api.Bans.Web.Server.Model;
 using Sovereign.Core.Database.Model.Api;
 using Sovereign.Core.Model;
+using Sovereign.Core.Model.Request.Authorization;
 using Sovereign.Core.Model.Response;
 using Sprache;
 
@@ -27,8 +28,14 @@ public class BanController
     /// <summary>
     /// Handles a ban request.
     /// </summary>
-    public async Task<JsonResponse> HandleBanRequest(BanRequest request)
+    public async Task<JsonResponse> HandleBanRequest(BaseRequestContext requestContext)
     {
+        var request = requestContext.GetRequest(BanRequestJsonContext.Default.BanRequest);
+        if (request == null)
+        {
+            return SimpleResponse.MalformedRequestResponse;
+        }
+        
         // TODO: Return 401 if the API header is invalid.
         
         // Return a validation error.

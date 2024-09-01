@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using System.Text.Json.Serialization;
 using Sovereign.Core.Model;
 
 namespace Sovereign.Api.Bans.Web.Server.Model;
@@ -71,4 +72,10 @@ public class BanRequest
     /// Reason for the ban or unban.
     /// </summary>
     public BanRequestReason? Reason { get; set; }
+}
+
+[JsonSerializable(typeof(BanRequest))]
+[JsonSourceGenerationOptions(WriteIndented = true, IncludeFields = true)]
+public partial class BanRequestJsonContext : JsonSerializerContext
+{
 }
