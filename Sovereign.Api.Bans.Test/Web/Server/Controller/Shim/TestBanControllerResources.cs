@@ -13,9 +13,9 @@ public class TestBanControllerResources : IBanControllerResources
     public BansConfiguration Configuration { get; set; } = new BansConfiguration();
 
     /// <summary>
-    /// Context to assign bans.
+    /// Path to create a test database.
     /// </summary>
-    public BansContext Context { get; set; } = new BansContext(Path.GetTempFileName());
+    private readonly string _databasePath = Path.GetTempFileName();
     
     /// <summary>
     /// Returns the current bans configuration.
@@ -32,7 +32,8 @@ public class TestBanControllerResources : IBanControllerResources
     /// <returns>The database context to use.</returns>
     public BansContext GetBansContext()
     {
-        this.Context.MigrateAsync().Wait();
-        return this.Context;
+        var context = new BansContext(this._databasePath);
+        context.MigrateAsync().Wait();
+        return context;
     }
 }
