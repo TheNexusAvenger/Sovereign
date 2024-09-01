@@ -512,11 +512,41 @@ public class BanControllerTest
         Assert.That(banResponse.BannedUserIds, Is.EqualTo(new List<long>()));
         Assert.That(banResponse.UnbannedUserIds, Is.EqualTo(new List<long>()));
     }
-    
-    // TODO: Unban with different domain.
-    
-    // TODO: Direct Roblox id.
-    // TODO: Link data.
+
+    [Test]
+    public void TestHandleBanRequestLinkData()
+    {
+        var context = this._testResources.GetBansContext();
+        context.ExternalAccountLinks.Add(new ExternalAccountLink()
+        {
+            RobloxUserId = 12345,
+            Domain = "TestDomain",
+            LinkMethod = "TestLink",
+            LinkData = "TestData",
+        });
+        context.SaveChanges();
+        
+        this.PrepareValidConfiguration();
+        var request = this.PrepareValidResponse();
+        request.Authentication!.Method = "TestLink";
+        request.Authentication!.Data = "TestData";
+        var response = this._banController.HandleBanRequest(request).Result;
+        var banResponse = (BanResponse) response.Response;
+        Assert.That(response.StatusCode, Is.EqualTo(200));
+        Assert.That(banResponse.Status, Is.EqualTo("Success"));
+        Assert.That(banResponse.BannedUserIds, Is.EqualTo(new List<long>() { 23456, }));
+        Assert.That(banResponse.UnbannedUserIds, Is.EqualTo(new List<long>()));
+
+        var latestBanEntry = this._testResources.GetBansContext().BanEntries.OrderBy(entry => entry.StartTime).Last();
+        Assert.That(latestBanEntry.TargetRobloxUserId, Is.EqualTo(23456));
+        Assert.That(latestBanEntry.Domain, Is.EqualTo("TestDomain"));
+        Assert.That(latestBanEntry.Action, Is.EqualTo(BanAction.Ban));
+        Assert.That(Math.Abs((DateTime.Now - latestBanEntry.StartTime).TotalSeconds), Is.LessThan(10));
+        Assert.That(latestBanEntry.EndTime, Is.Null);
+        Assert.That(latestBanEntry.ActingRobloxUserId, Is.EqualTo(12345));
+        Assert.That(latestBanEntry.DisplayReason, Is.EqualTo("Test Message 1"));
+        Assert.That(latestBanEntry.PrivateReason, Is.EqualTo("Test Message 2"));
+    }
 
     public void PrepareValidConfiguration()
     {

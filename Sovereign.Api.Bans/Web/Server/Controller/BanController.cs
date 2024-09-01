@@ -141,7 +141,7 @@ public class BanController
         var authenticationData = request.Authentication!.Data!;
         if (authenticationMethod != "roblox")
         {
-            var authenticationLink = await bansContext.ExternalAccountLinks.FirstOrDefaultAsync(link => link.Domain.ToLower() == domain && link.LinkMethod.ToLower() == authenticationMethod && link.LinkData.ToLower() == authenticationData);
+            var authenticationLink = await bansContext.ExternalAccountLinks.FirstOrDefaultAsync(link => link.Domain.ToLower() == domain && link.LinkMethod.ToLower() == authenticationMethod && link.LinkData == authenticationData);
             if (authenticationLink == null)
             {
                 return SimpleResponse.UnauthorizedResponse;
