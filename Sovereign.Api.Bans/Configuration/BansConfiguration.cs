@@ -20,12 +20,22 @@ public class DomainConfiguration
     /// <summary>
     /// Name of the ban domain (games and groups).
     /// </summary>
-    public string? Name { get; set; } = null!;
+    public string? Name { get; set; }
+    
+    /// <summary>
+    /// API keys used to authenticate requests.
+    /// </summary>
+    public List<string>? ApiKeys { get; set; }
+    
+    /// <summary>
+    /// Secret keys used to authenticate requests with HMAC SHA256.
+    /// </summary>
+    public List<string>? SecretKeys { get; set; }
 
     /// <summary>
     /// Rules to authenticate users.
     /// </summary>
-    public List<AuthenticationRuleEntry>? Rules { get; set; } = null!;
+    public List<AuthenticationRuleEntry>? Rules { get; set; }
 }
 
 public class BansConfiguration : BaseConfiguration

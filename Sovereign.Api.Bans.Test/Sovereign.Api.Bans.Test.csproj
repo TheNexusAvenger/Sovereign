@@ -24,6 +24,7 @@
 
     <ItemGroup>
       <ProjectReference Include="..\Sovereign.Api.Bans\Sovereign.Api.Bans.csproj" />
+      <ProjectReference Include="..\Sovereign.Core.Test\Sovereign.Core.Test.csproj" />
     </ItemGroup>
 
 </Project>

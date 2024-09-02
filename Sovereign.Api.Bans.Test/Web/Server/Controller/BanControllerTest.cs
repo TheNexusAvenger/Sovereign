@@ -1,6 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
+using System.Text;
+using Microsoft.AspNetCore.Http;
 using NUnit.Framework;
 using Sovereign.Api.Bans.Configuration;
 using Sovereign.Api.Bans.Test.Web.Server.Controller.Shim;
@@ -9,6 +12,7 @@ using Sovereign.Api.Bans.Web.Server.Model;
 using Sovereign.Core.Database.Model.Api;
 using Sovereign.Core.Model;
 using Sovereign.Core.Model.Response;
+using Sovereign.Core.Test.Model.Request.Authorization;
 
 namespace Sovereign.Api.Bans.Test.Web.Server.Controller;
 
@@ -27,12 +31,10 @@ public class BanControllerTest
         };
     }
     
-    // TODO: Invalid headers.
-    
     [Test]
     public void TestHandleBanRequestAllFieldsMissing()
     {
-        var response = this._banController.HandleBanRequest(new BanRequest()).Result;
+        var response = this._banController.HandleBanRequest(GetContext(new BanRequest())).Result;
         var validationErrorResponse = (ValidationErrorResponse) response.Response;
         Assert.That(response.StatusCode, Is.EqualTo(400));
         Assert.That(validationErrorResponse.Errors.Count, Is.EqualTo(4));
@@ -49,13 +51,13 @@ public class BanControllerTest
     [Test]
     public void TestHandleBanRequestAllSubFieldsMissing()
     {
-        var response = this._banController.HandleBanRequest(new BanRequest()
+        var response = this._banController.HandleBanRequest(GetContext(new BanRequest()
         {
             Domain = "Domain",
             Authentication = new BanRequestAuthentication(),
             Action = new BanRequestAction(),
             Reason = new BanRequestReason(),
-        }).Result;
+        })).Result;
         var validationErrorResponse = (ValidationErrorResponse) response.Response;
         Assert.That(response.StatusCode, Is.EqualTo(400));
         Assert.That(validationErrorResponse.Errors.Count, Is.EqualTo(6));
@@ -76,7 +78,7 @@ public class BanControllerTest
     [Test]
     public void TestHandleBanRequestAllInvalidSubFieldsMissing()
     {
-        var response = this._banController.HandleBanRequest(new BanRequest()
+        var response = this._banController.HandleBanRequest(GetContext(new BanRequest()
         {
             Domain = "Domain",
             Authentication = new BanRequestAuthentication()
@@ -95,7 +97,7 @@ public class BanControllerTest
                 Display = "",
                 Private = "",
             },
-        }).Result;
+        })).Result;
         var validationErrorResponse = (ValidationErrorResponse) response.Response;
         Assert.That(response.StatusCode, Is.EqualTo(400));
         Assert.That(validationErrorResponse.Errors.Count, Is.EqualTo(2));
@@ -112,7 +114,7 @@ public class BanControllerTest
         {
             Domains = null,
         };
-        var response = this._banController.HandleBanRequest(new BanRequest()
+        var response = this._banController.HandleBanRequest(GetContext(new BanRequest()
         {
             Domain = "TestDomain",
             Authentication = new BanRequestAuthentication()
@@ -130,7 +132,7 @@ public class BanControllerTest
                 Display = "Test Message 1",
                 Private = "Test Message 2",
             },
-        }).Result;
+        })).Result;
         var simpleResponse = response.Response;
         Assert.That(response.StatusCode, Is.EqualTo(503));
         Assert.That(simpleResponse.Status, Is.EqualTo("ServerConfigurationError"));
@@ -143,7 +145,7 @@ public class BanControllerTest
         {
             Domains = new List<DomainConfiguration>(),
         };
-        var response = this._banController.HandleBanRequest(new BanRequest()
+        var response = this._banController.HandleBanRequest(GetContext(new BanRequest()
         {
             Domain = "TestDomain",
             Authentication = new BanRequestAuthentication()
@@ -161,7 +163,19 @@ public class BanControllerTest
                 Display = "Test Message 1",
                 Private = "Test Message 2",
             },
-        }).Result;
+        })).Result;
+        var simpleResponse = response.Response;
+        Assert.That(response.StatusCode, Is.EqualTo(401));
+        Assert.That(simpleResponse.Status, Is.EqualTo("Unauthorized"));
+    }
+    
+    [Test]
+    public void TestHandleBanRequestUnauthorizedHeader()
+    {
+        PrepareValidConfiguration();
+        var context = GetContext(this.PrepareValidResponse());
+        context.Authorized = false;
+        var response = this._banController.HandleBanRequest(context).Result;
         var simpleResponse = response.Response;
         Assert.That(response.StatusCode, Is.EqualTo(401));
         Assert.That(simpleResponse.Status, Is.EqualTo("Unauthorized"));
@@ -181,7 +195,7 @@ public class BanControllerTest
                 },
             },
         };
-        var response = this._banController.HandleBanRequest(new BanRequest()
+        var response = this._banController.HandleBanRequest(GetContext(new BanRequest()
         {
             Domain = "TestDomain",
             Authentication = new BanRequestAuthentication()
@@ -199,7 +213,7 @@ public class BanControllerTest
                 Display = "Test Message 1",
                 Private = "Test Message 2",
             },
-        }).Result;
+        })).Result;
         var simpleResponse = response.Response;
         Assert.That(response.StatusCode, Is.EqualTo(401));
         Assert.That(simpleResponse.Status, Is.EqualTo("Unauthorized"));
@@ -219,7 +233,7 @@ public class BanControllerTest
                 },
             },
         };
-        var response = this._banController.HandleBanRequest(new BanRequest()
+        var response = this._banController.HandleBanRequest(GetContext(new BanRequest()
         {
             Domain = "TestDomain",
             Authentication = new BanRequestAuthentication()
@@ -237,7 +251,7 @@ public class BanControllerTest
                 Display = "Test Message 1",
                 Private = "Test Message 2",
             },
-        }).Result;
+        })).Result;
         var simpleResponse = response.Response;
         Assert.That(response.StatusCode, Is.EqualTo(401));
         Assert.That(simpleResponse.Status, Is.EqualTo("Unauthorized"));
@@ -257,7 +271,7 @@ public class BanControllerTest
                 },
             },
         };
-        var response = this._banController.HandleBanRequest(this.PrepareValidResponse()).Result;
+        var response = this._banController.HandleBanRequest(GetContext(this.PrepareValidResponse())).Result;
         var simpleResponse = response.Response;
         Assert.That(response.StatusCode, Is.EqualTo(503));
         Assert.That(simpleResponse.Status, Is.EqualTo("ServerConfigurationError"));
@@ -283,7 +297,7 @@ public class BanControllerTest
                 },
             },
         };
-        var response = this._banController.HandleBanRequest(this.PrepareValidResponse()).Result;
+        var response = this._banController.HandleBanRequest(GetContext(this.PrepareValidResponse())).Result;
         var simpleResponse = response.Response;
         Assert.That(response.StatusCode, Is.EqualTo(503));
         Assert.That(simpleResponse.Status, Is.EqualTo("ServerError"));
@@ -303,7 +317,7 @@ public class BanControllerTest
                 },
             },
         };
-        var response = this._banController.HandleBanRequest(this.PrepareValidResponse()).Result;
+        var response = this._banController.HandleBanRequest(GetContext(this.PrepareValidResponse())).Result;
         var simpleResponse = response.Response;
         Assert.That(response.StatusCode, Is.EqualTo(403));
         Assert.That(simpleResponse.Status, Is.EqualTo("Forbidden"));
@@ -313,7 +327,7 @@ public class BanControllerTest
     public void TestHandleBanRequestPermanentBan()
     {
         this.PrepareValidConfiguration();
-        var response = this._banController.HandleBanRequest(this.PrepareValidResponse()).Result;
+        var response = this._banController.HandleBanRequest(GetContext(this.PrepareValidResponse())).Result;
         var banResponse = (BanResponse) response.Response;
         Assert.That(response.StatusCode, Is.EqualTo(200));
         Assert.That(banResponse.Status, Is.EqualTo("Success"));
@@ -337,7 +351,7 @@ public class BanControllerTest
         this.PrepareValidConfiguration();
         var request = this.PrepareValidResponse();
         request.Action!.Duration = 120;
-        var response = this._banController.HandleBanRequest(request).Result;
+        var response = this._banController.HandleBanRequest(GetContext(request)).Result;
         var banResponse = (BanResponse) response.Response;
         Assert.That(response.StatusCode, Is.EqualTo(200));
         Assert.That(banResponse.Status, Is.EqualTo("Success"));
@@ -372,7 +386,7 @@ public class BanControllerTest
         context.SaveChanges();
         
         this.PrepareValidConfiguration();
-        var response = this._banController.HandleBanRequest(this.PrepareValidResponse()).Result;
+        var response = this._banController.HandleBanRequest(GetContext(this.PrepareValidResponse())).Result;
         var banResponse = (BanResponse) response.Response;
         Assert.That(response.StatusCode, Is.EqualTo(200));
         Assert.That(banResponse.Status, Is.EqualTo("Success"));
@@ -407,7 +421,7 @@ public class BanControllerTest
         context.SaveChanges();
         
         this.PrepareValidConfiguration();
-        var response = this._banController.HandleBanRequest(this.PrepareValidResponse(BanAction.Unban)).Result;
+        var response = this._banController.HandleBanRequest(GetContext(this.PrepareValidResponse(BanAction.Unban))).Result;
         var banResponse = (BanResponse) response.Response;
         Assert.That(response.StatusCode, Is.EqualTo(200));
         Assert.That(banResponse.Status, Is.EqualTo("Success"));
@@ -429,7 +443,7 @@ public class BanControllerTest
     public void TestHandleBanRequestUnbanNoPreviousRecord()
     {
         this.PrepareValidConfiguration();
-        var response = this._banController.HandleBanRequest(this.PrepareValidResponse(BanAction.Unban)).Result;
+        var response = this._banController.HandleBanRequest(GetContext(this.PrepareValidResponse(BanAction.Unban))).Result;
         var banResponse = (BanResponse) response.Response;
         Assert.That(response.StatusCode, Is.EqualTo(200));
         Assert.That(banResponse.Status, Is.EqualTo("Success"));
@@ -454,7 +468,7 @@ public class BanControllerTest
         context.SaveChanges();
         
         this.PrepareValidConfiguration();
-        var response = this._banController.HandleBanRequest(this.PrepareValidResponse(BanAction.Unban)).Result;
+        var response = this._banController.HandleBanRequest(GetContext(this.PrepareValidResponse(BanAction.Unban))).Result;
         var banResponse = (BanResponse) response.Response;
         Assert.That(response.StatusCode, Is.EqualTo(200));
         Assert.That(banResponse.Status, Is.EqualTo("Success"));
@@ -480,7 +494,7 @@ public class BanControllerTest
         context.SaveChanges();
         
         this.PrepareValidConfiguration();
-        var response = this._banController.HandleBanRequest(this.PrepareValidResponse(BanAction.Unban)).Result;
+        var response = this._banController.HandleBanRequest(GetContext(this.PrepareValidResponse(BanAction.Unban))).Result;
         var banResponse = (BanResponse) response.Response;
         Assert.That(response.StatusCode, Is.EqualTo(200));
         Assert.That(banResponse.Status, Is.EqualTo("Success"));
@@ -505,7 +519,7 @@ public class BanControllerTest
         context.SaveChanges();
         
         this.PrepareValidConfiguration();
-        var response = this._banController.HandleBanRequest(this.PrepareValidResponse(BanAction.Unban)).Result;
+        var response = this._banController.HandleBanRequest(GetContext(this.PrepareValidResponse(BanAction.Unban))).Result;
         var banResponse = (BanResponse) response.Response;
         Assert.That(response.StatusCode, Is.EqualTo(200));
         Assert.That(banResponse.Status, Is.EqualTo("Success"));
@@ -530,7 +544,7 @@ public class BanControllerTest
         var request = this.PrepareValidResponse();
         request.Authentication!.Method = "TestLink";
         request.Authentication!.Data = "TestData";
-        var response = this._banController.HandleBanRequest(request).Result;
+        var response = this._banController.HandleBanRequest(GetContext(request)).Result;
         var banResponse = (BanResponse) response.Response;
         Assert.That(response.StatusCode, Is.EqualTo(200));
         Assert.That(banResponse.Status, Is.EqualTo("Success"));
@@ -591,5 +605,10 @@ public class BanControllerTest
                 Private = "Test Message 2",
             },
         };
+    }
+
+    public TestRequestContext GetContext(BanRequest request)
+    {
+        return TestRequestContext.FromRequest(request, BanRequestJsonContext.Default.BanRequest);
     }
 }

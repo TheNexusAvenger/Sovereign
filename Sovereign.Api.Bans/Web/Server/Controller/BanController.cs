@@ -30,13 +30,12 @@ public class BanController
     /// </summary>
     public async Task<JsonResponse> HandleBanRequest(BaseRequestContext requestContext)
     {
+        // Return if the request could not be parsed.
         var request = requestContext.GetRequest(BanRequestJsonContext.Default.BanRequest);
         if (request == null)
         {
             return SimpleResponse.MalformedRequestResponse;
         }
-        
-        // TODO: Return 401 if the API header is invalid.
         
         // Return a validation error.
         var validationError = ValidationErrorResponse.GetValidationErrorResponse(new List<ValidationErrorCheck>()
@@ -137,6 +136,12 @@ public class BanController
         }
         var domainData = domains.FirstOrDefault(domainData => domainData.Name != null && domainData.Name.ToLower() == domain);
         if (domainData == null)
+        {
+            return SimpleResponse.UnauthorizedResponse;
+        }
+        
+        // Return 401 if the authorization header was invalid for the request.
+        if (!requestContext.IsAuthorized(domainData.ApiKeys, domainData.SecretKeys))
         {
             return SimpleResponse.UnauthorizedResponse;
         }
