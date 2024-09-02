@@ -1,9 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.IO;
 using System.Linq;
-using System.Text;
-using Microsoft.AspNetCore.Http;
 using NUnit.Framework;
 using Sovereign.Api.Bans.Configuration;
 using Sovereign.Api.Bans.Test.Web.Server.Controller.Shim;

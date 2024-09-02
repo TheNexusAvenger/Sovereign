@@ -32,7 +32,7 @@ public class RequestContext : BaseRequestContext
         }
         
         // Verify the authorization header.
-        var authorizationHeaderParts = this.Authorization.Split(" ", 1);
+        var authorizationHeaderParts = this.Authorization.Split(" ", 2);
         if (authorizationHeaderParts.Length == 2)
         {
             var authorizationScheme = authorizationHeaderParts[0].ToLower();
