@@ -3,17 +3,13 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using Bouncer.Diagnostic;
-using Bouncer.Expression;
-using Bouncer.Parser;
 using Microsoft.EntityFrameworkCore;
-using Sovereign.Api.Bans.Configuration;
 using Sovereign.Api.Bans.Web.Server.Controller.Shim;
 using Sovereign.Api.Bans.Web.Server.Model;
 using Sovereign.Core.Database.Model.Api;
 using Sovereign.Core.Model;
 using Sovereign.Core.Model.Request.Authorization;
 using Sovereign.Core.Model.Response;
-using Sprache;
 
 namespace Sovereign.Api.Bans.Web.Server.Controller;
 
@@ -166,30 +162,10 @@ public class BanController
         }
         
         // Verify the Roblox user can handle the ban.
-        if (domainData.Rules == null)
+        var authorizationError = domainData.IsRobloxUserAuthorized(actingRobloxId);
+        if (authorizationError != null)
         {
-            Logger.Error($"Domain \"{domainData.Name}\" was does not have rules.");
-            return new JsonResponse(new SimpleResponse("ServerConfigurationError"), 503);
-        }
-        var action = AuthenticationRuleAction.Deny;
-        foreach (var rule in domainData.Rules)
-        {
-            try
-            {
-                if (!Condition.FromParsedCondition(ExpressionParser.FullExpressionParser.Parse(rule.Rule)).Evaluate(actingRobloxId)) continue;
-                action = AuthenticationRuleAction.Allow;
-                break;
-            }
-            catch (Exception e)
-            {
-                Logger.Error($"Error evaluating rule for {actingRobloxId} in domain \"{domainData.Name}\".\n{e}");
-                return new JsonResponse(new SimpleResponse("ServerError"), 503); 
-            }
-        }
-        if (action == AuthenticationRuleAction.Deny)
-        {
-            
-            return SimpleResponse.ForbiddenResponse;
+            return authorizationError;
         }
         
         // Add the actions. Ignore unban requests for non-banned users.

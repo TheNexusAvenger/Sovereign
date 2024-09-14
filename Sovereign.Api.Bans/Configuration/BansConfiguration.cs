@@ -1,7 +1,13 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Text.Json.Serialization;
+using Bouncer.Diagnostic;
+using Bouncer.Expression;
+using Bouncer.Parser;
 using Bouncer.State;
 using Sovereign.Core.Configuration;
+using Sovereign.Core.Model.Response;
+using Sprache;
 
 namespace Sovereign.Api.Bans.Configuration;
 
@@ -36,6 +42,41 @@ public class DomainConfiguration
     /// Rules to authenticate users.
     /// </summary>
     public List<AuthenticationRuleEntry>? Rules { get; set; }
+
+    /// <summary>
+    /// Verifies that a Roblox user passes the rules for the domain.
+    /// </summary>
+    /// <param name="robloxUserId">Roblox user id to verify.</param>
+    /// <returns>Error response for the authorization if the user is unauthorized.</returns>
+    public JsonResponse? IsRobloxUserAuthorized(long robloxUserId)
+    {
+        // Return an error if there is no rules.
+        if (this.Rules == null)
+        {
+            Logger.Error($"Domain \"{this.Name}\" was does not have rules.");
+            return new JsonResponse(new SimpleResponse("ServerConfigurationError"), 503);
+        }
+        
+        // Iterate over the rules and return if there is a server error.
+        var action = AuthenticationRuleAction.Deny;
+        foreach (var rule in this.Rules)
+        {
+            try
+            {
+                if (!Condition.FromParsedCondition(ExpressionParser.FullExpressionParser.Parse(rule.Rule)).Evaluate(robloxUserId)) continue;
+                action = rule.Action ?? AuthenticationRuleAction.Deny;
+                break;
+            }
+            catch (Exception e)
+            {
+                Logger.Error($"Error evaluating rule for {robloxUserId} in domain \"{this.Name}\".\n{e}");
+                return new JsonResponse(new SimpleResponse("ServerError"), 503); 
+            }
+        }
+
+        // Return an error if the user is unauthorized.
+        return action == AuthenticationRuleAction.Deny ? SimpleResponse.ForbiddenResponse : null;
+    }
 }
 
 public class BansConfiguration : BaseConfiguration
