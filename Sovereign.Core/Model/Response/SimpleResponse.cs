@@ -6,6 +6,11 @@ namespace Sovereign.Core.Model.Response;
 public class SimpleResponse : BaseResponse
 {
     /// <summary>
+    /// Response for a successful request.
+    /// </summary>
+    public static readonly JsonResponse SuccessResponse = new JsonResponse(new SimpleResponse("Success"), 200);
+    
+    /// <summary>
     /// Response for a malformed request.
     /// </summary>
     public static readonly JsonResponse MalformedRequestResponse = new JsonResponse(new SimpleResponse("MalformedRequest"), 400);

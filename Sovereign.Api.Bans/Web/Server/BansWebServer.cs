@@ -1,7 +1,4 @@
-﻿using System.IO;
-using System.Linq;
-using System.Text.Json;
-using System.Threading.Tasks;
+﻿using System.Threading.Tasks;
 using Bouncer.Web.Server;
 using Bouncer.Web.Server.Model;
 using Microsoft.AspNetCore.Builder;
@@ -10,7 +7,6 @@ using Microsoft.Extensions.DependencyInjection;
 using Sovereign.Api.Bans.Web.Server.Controller;
 using Sovereign.Api.Bans.Web.Server.Model;
 using Sovereign.Core.Model.Request.Authorization;
-using Sovereign.Core.Model.Response;
 
 namespace Sovereign.Api.Bans.Web.Server;
 
@@ -48,7 +44,16 @@ public class BansWebServer : WebServer
                 var response = await banController.HandleBanRequest(requestContext);
                 await response.GetResponse().ExecuteAsync(httpContext);
             });
-            // TODO
+            // TODO: Get bans API.
+            
+            // Add the account endpoints.
+            var accountLinkController = new AccountLinkController();
+            app.MapPost("/accounts/link", async (httpContext) =>
+            {
+                var requestContext = new RequestContext(httpContext);
+                var response = await accountLinkController.HandleExternalLinkRequest(requestContext);
+                await response.GetResponse().ExecuteAsync(httpContext);
+            });
         });
     }
 }
