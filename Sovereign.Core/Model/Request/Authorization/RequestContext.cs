@@ -6,6 +6,12 @@ using Microsoft.AspNetCore.Http;
 
 namespace Sovereign.Core.Model.Request.Authorization;
 
+public enum RequestAuthorizationSource
+{
+    Body,
+    Query,
+}
+
 public class RequestContext : BaseRequestContext
 {
     /// <summary>
@@ -22,8 +28,9 @@ public class RequestContext : BaseRequestContext
     /// </summary>
     /// <param name="apiKeys">List of API keys that are valid.</param>
     /// <param name="signatureSecrets">List of request signature secrets that are valid.</param>
+    /// <param name="authorizationSource">Source to base signatures on.</param>
     /// <returns>Whether the request is authorized or not.</returns>
-    public override bool IsAuthorized(List<string>? apiKeys, List<string>? signatureSecrets)
+    public override bool IsAuthorized(List<string>? apiKeys, List<string>? signatureSecrets, RequestAuthorizationSource authorizationSource = RequestAuthorizationSource.Body)
     {
         // Return false if there is no authorization header.
         if (this.Authorization == null)
@@ -49,10 +56,11 @@ public class RequestContext : BaseRequestContext
             else if (authorizationScheme == "signature" && signatureSecrets != null)
             {
                 // Return true if a signature matches.
+                var compareData = (authorizationSource == RequestAuthorizationSource.Body ? this.RequestBody : this.RawQuery);
                 foreach (var signatureSecret in signatureSecrets)
                 {
                     using var sha256 = new HMACSHA256(Encoding.UTF8.GetBytes(signatureSecret));
-                    var newSignature = Convert.ToBase64String(sha256.ComputeHash(Encoding.UTF8.GetBytes(this.RequestBody)));
+                    var newSignature = Convert.ToBase64String(sha256.ComputeHash(Encoding.UTF8.GetBytes(compareData)));
                     if (authorizationData != newSignature) continue;
                     return true;
                 }

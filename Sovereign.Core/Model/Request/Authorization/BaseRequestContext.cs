@@ -20,13 +20,25 @@ public abstract class BaseRequestContext
     public readonly string RequestBody;
 
     /// <summary>
+    /// Raw query parameters part of the request.
+    /// </summary>
+    public readonly string RawQuery;
+
+    /// <summary>
+    /// Query parameters part of the request.
+    /// </summary>
+    public readonly IQueryCollection QueryParameters;
+
+    /// <summary>
     /// Creates a base request context.
     /// </summary>
     /// <param name="httpContext">HttpContext to read the request from.</param>
     public BaseRequestContext(HttpContext httpContext)
     {
         this.Authorization = httpContext.Request.Headers.Authorization.FirstOrDefault();
-        this.RequestBody = new StreamReader(httpContext.Request.Body).ReadToEnd();
+        this.RequestBody = new StreamReader(httpContext.Request.Body).ReadToEndAsync().Result;
+        this.RawQuery = httpContext.Request.QueryString.ToString();
+        this.QueryParameters = httpContext.Request.Query;
     }
 
     /// <summary>
@@ -45,6 +57,7 @@ public abstract class BaseRequestContext
     /// </summary>
     /// <param name="apiKeys">List of API keys that are valid.</param>
     /// <param name="signatureSecrets">List of request signature secrets that are valid.</param>
+    /// <param name="authorizationSource">Source to base signatures on.</param>
     /// <returns>Whether the request is authorized or not.</returns>
-    public abstract bool IsAuthorized(List<string>? apiKeys, List<string>? signatureSecrets);
+    public abstract bool IsAuthorized(List<string>? apiKeys, List<string>? signatureSecrets, RequestAuthorizationSource authorizationSource = RequestAuthorizationSource.Body);
 }
