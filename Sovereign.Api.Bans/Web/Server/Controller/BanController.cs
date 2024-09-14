@@ -237,4 +237,111 @@ public class BanController
             UnbannedUserIds = unbannedRobloxIds,
         }, 200);
     }
+
+    /// <summary>
+    /// Handles a request to list bans.
+    /// </summary>
+    public async Task<JsonResponse> HandleListBansRequest(BaseRequestContext requestContext)
+    {
+        // Return a validation error.
+        var robloxUserIdValid = long.TryParse(requestContext.QueryParameters["robloxUserId"].FirstOrDefault(), out var robloxUserId);
+        var startIndexValid = int.TryParse(requestContext.QueryParameters["start"].FirstOrDefault() ?? "0", out var startIndex);
+        var maxEntriesValid = int.TryParse(requestContext.QueryParameters["max"].FirstOrDefault() ?? "20", out var maxEntries);
+        var validationError = ValidationErrorResponse.GetValidationErrorResponse(new List<ValidationErrorCheck>()
+        {
+            new ValidationErrorCheck()
+            {
+                Path = "domain",
+                Message = "domain was not provided in the query parameters.",
+                IsValid = () => requestContext.QueryParameters.ContainsKey("domain"),
+            },
+            new ValidationErrorCheck()
+            {
+                Path = "robloxUserId",
+                Message = "robloxUserId was not provided in the query parameters.",
+                IsValid = () => requestContext.QueryParameters.ContainsKey("robloxUserId"),
+            },
+            new ValidationErrorCheck()
+            {
+                Path = "robloxUserId",
+                Message = "robloxUserId was not a number.",
+                IsValid = () => !requestContext.QueryParameters.ContainsKey("robloxUserId") || robloxUserIdValid,
+            },
+            new ValidationErrorCheck()
+            {
+                Path = "start",
+                Message = "start was not a number.",
+                IsValid = () => startIndexValid,
+            },
+            new ValidationErrorCheck()
+            {
+                Path = "max",
+                Message = "max was not a number.",
+                IsValid = () => maxEntriesValid,
+            },
+            new ValidationErrorCheck()
+            {
+                Path = "start",
+                Message = "start must be a positive integer or zero.",
+                IsValid = () => !startIndexValid || startIndex >= 0,
+            },
+            new ValidationErrorCheck()
+            {
+                Path = "max",
+                Message = "max must be a positive integer.",
+                IsValid = () => !maxEntriesValid || maxEntries > 0,
+            },
+        });
+        if (validationError != null)
+        {
+            return new JsonResponse(validationError, 400);
+        }
+        
+        // Get the domain for the request.
+        var configuration = this.ControllerResources.GetConfiguration();
+        var domain = requestContext.QueryParameters["Domain"].First()!.ToLower();
+        var domains = configuration.Domains;
+        if (domains == null)
+        {
+            Logger.Error("Domains was not configured in the configuration.");
+            return new JsonResponse(new SimpleResponse("ServerConfigurationError"), 503);
+        }
+        var domainData = domains.FirstOrDefault(domainData => domainData.Name != null && domainData.Name.ToLower() == domain);
+        if (domainData == null)
+        {
+            return SimpleResponse.UnauthorizedResponse;
+        }
+        
+        // Return 401 if the authorization header was invalid for the request.
+        if (!requestContext.IsAuthorized(domainData.ApiKeys, domainData.SecretKeys, RequestAuthorizationSource.Query))
+        {
+            return SimpleResponse.UnauthorizedResponse;
+        }
+        
+        // List the bans and return the entries.
+        await using var bansContext = this.ControllerResources.GetBansContext();
+        var banEntries = await bansContext.BanEntries
+            .Where(entry => entry.Domain.ToLower() == domain && entry.TargetRobloxUserId == robloxUserId)
+            .OrderByDescending(entry => entry.StartTime)
+            .Skip(startIndex)
+            .Take(Math.Min(maxEntries, 100)).ToListAsync();
+        return new JsonResponse(new BanRecordResponse()
+        {
+            Entries = banEntries.Select(entry => new BanRecordResponseEntry()
+            {
+                Action =
+                {
+                    Type = entry.Action,
+                    StartTime = entry.StartTime,
+                    EndTime = entry.EndTime,
+                },
+                Reason =
+                {
+                    ActingUserId = entry.ActingRobloxUserId,
+                    Display = entry.DisplayReason,
+                    Private = entry.PrivateReason,
+                },
+            }).ToList(),
+        }, 200);
+    }
 }

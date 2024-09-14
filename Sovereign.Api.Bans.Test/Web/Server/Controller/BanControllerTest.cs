@@ -559,6 +559,153 @@ public class BanControllerTest
         Assert.That(latestBanEntry.PrivateReason, Is.EqualTo("Test Message 2"));
     }
 
+    [Test]
+    public void TestHandleListBansRequestMissingParameters()
+    {
+        this.PrepareValidConfiguration();
+        var context = TestRequestContext.FromQuery("");
+        var response = this._banController.HandleListBansRequest(context).Result;
+        Assert.That(response.StatusCode, Is.EqualTo(400));
+        var validationErrorResponse = (ValidationErrorResponse) response.Response;
+        Assert.That(validationErrorResponse.Errors.Count, Is.EqualTo(2));
+        Assert.That(validationErrorResponse.Errors[0].Path, Is.EqualTo("domain"));
+        Assert.That(validationErrorResponse.Errors[0].Message, Is.EqualTo("domain was not provided in the query parameters."));
+        Assert.That(validationErrorResponse.Errors[1].Path, Is.EqualTo("robloxUserId"));
+        Assert.That(validationErrorResponse.Errors[1].Message, Is.EqualTo("robloxUserId was not provided in the query parameters."));
+    }
+
+    [Test]
+    public void TestHandleListBansRequestMalformedNumbers()
+    {
+        this.PrepareValidConfiguration();
+        var context = TestRequestContext.FromQuery("?domain=testDomain&robloxUserId=bad&start=bad&max=bad");
+        var response = this._banController.HandleListBansRequest(context).Result;
+        Assert.That(response.StatusCode, Is.EqualTo(400));
+        var validationErrorResponse = (ValidationErrorResponse) response.Response;
+        Assert.That(validationErrorResponse.Errors.Count, Is.EqualTo(3));
+        Assert.That(validationErrorResponse.Errors[0].Path, Is.EqualTo("robloxUserId"));
+        Assert.That(validationErrorResponse.Errors[0].Message, Is.EqualTo("robloxUserId was not a number."));
+        Assert.That(validationErrorResponse.Errors[1].Path, Is.EqualTo("start"));
+        Assert.That(validationErrorResponse.Errors[1].Message, Is.EqualTo("start was not a number."));
+        Assert.That(validationErrorResponse.Errors[2].Path, Is.EqualTo("max"));
+        Assert.That(validationErrorResponse.Errors[2].Message, Is.EqualTo("max was not a number."));
+    }
+
+    [Test]
+    public void TestHandleListBansRequestInvalidNumbers()
+    {
+        this.PrepareValidConfiguration();
+        var context = TestRequestContext.FromQuery("?domain=testDomain&robloxUserId=12345&start=-1&max=0");
+        var response = this._banController.HandleListBansRequest(context).Result;
+        Assert.That(response.StatusCode, Is.EqualTo(400));
+        var validationErrorResponse = (ValidationErrorResponse) response.Response;
+        Assert.That(validationErrorResponse.Errors[0].Path, Is.EqualTo("start"));
+        Assert.That(validationErrorResponse.Errors[0].Message, Is.EqualTo("start must be a positive integer or zero."));
+        Assert.That(validationErrorResponse.Errors[1].Path, Is.EqualTo("max"));
+        Assert.That(validationErrorResponse.Errors[1].Message, Is.EqualTo("max must be a positive integer."));
+    }
+    
+    [Test]
+    public void TestHandleListBansRequestUnknownDomain()
+    {
+        this.PrepareValidConfiguration();
+        var context = TestRequestContext.FromQuery("?domain=unknownDomain&robloxUserId=23456");
+        var response = this._banController.HandleListBansRequest(context).Result;
+        var simpleResponse = response.Response;
+        Assert.That(response.StatusCode, Is.EqualTo(401));
+        Assert.That(simpleResponse.Status, Is.EqualTo("Unauthorized"));
+    }
+    
+    [Test]
+    public void TestHandleListBansRequestUnauthorizedHeader()
+    {
+        this.PrepareValidConfiguration();
+        var context = TestRequestContext.FromQuery("?domain=testDomain&robloxUserId=23456");
+        context.Authorized = false;
+        var response = this._banController.HandleListBansRequest(context).Result;
+        var simpleResponse = response.Response;
+        Assert.That(response.StatusCode, Is.EqualTo(401));
+        Assert.That(simpleResponse.Status, Is.EqualTo("Unauthorized"));
+    }
+    
+    [Test]
+    public void TestHandleListBansRequest()
+    {
+        var context = this._testResources.GetBansContext();
+        for (var i = 0; i < 10; i++)
+        {
+            context.BanEntries.Add(new BanEntry()
+            {
+                TargetRobloxUserId = 23456,
+                Domain = "TestDomain",
+                Action = (i % 2 == 0 ? BanAction.Ban : BanAction.Unban),
+                StartTime = DateTime.Now.AddDays(i),
+                ActingRobloxUserId = 12345,
+                DisplayReason = $"Test Display {i}",
+                PrivateReason = $"Test Private {i}",
+            });
+        }
+        context.SaveChanges();
+        
+        this.PrepareValidConfiguration();
+        var response = this._banController.HandleListBansRequest(TestRequestContext.FromQuery("?domain=testDomain&robloxUserId=23456&max=3")).Result;
+        var banEntriesResponse = (BanRecordResponse) response.Response;
+        Assert.That(response.StatusCode, Is.EqualTo(200));
+        Assert.That(banEntriesResponse.Status, Is.EqualTo("Success"));
+        Assert.That(banEntriesResponse.Entries.Count, Is.EqualTo(3));
+        Assert.That(banEntriesResponse.Entries[0].Action.Type, Is.EqualTo(BanAction.Unban));
+        Assert.That(banEntriesResponse.Entries[0].Reason.ActingUserId, Is.EqualTo(12345));
+        Assert.That(banEntriesResponse.Entries[0].Reason.Display, Is.EqualTo("Test Display 9"));
+        Assert.That(banEntriesResponse.Entries[0].Reason.Private, Is.EqualTo("Test Private 9"));
+        Assert.That(banEntriesResponse.Entries[1].Action.Type, Is.EqualTo(BanAction.Ban));
+        Assert.That(banEntriesResponse.Entries[1].Reason.ActingUserId, Is.EqualTo(12345));
+        Assert.That(banEntriesResponse.Entries[1].Reason.Display, Is.EqualTo("Test Display 8"));
+        Assert.That(banEntriesResponse.Entries[1].Reason.Private, Is.EqualTo("Test Private 8"));
+        Assert.That(banEntriesResponse.Entries[2].Action.Type, Is.EqualTo(BanAction.Unban));
+        Assert.That(banEntriesResponse.Entries[2].Reason.ActingUserId, Is.EqualTo(12345));
+        Assert.That(banEntriesResponse.Entries[2].Reason.Display, Is.EqualTo("Test Display 7"));
+        Assert.That(banEntriesResponse.Entries[2].Reason.Private, Is.EqualTo("Test Private 7"));
+    }
+    
+    [Test]
+    public void TestHandleListBansRequestOffset()
+    {
+        var context = this._testResources.GetBansContext();
+        for (var i = 0; i < 10; i++)
+        {
+            context.BanEntries.Add(new BanEntry()
+            {
+                TargetRobloxUserId = 23456,
+                Domain = "TestDomain",
+                Action = (i % 2 == 0 ? BanAction.Ban : BanAction.Unban),
+                StartTime = DateTime.Now.AddDays(i),
+                ActingRobloxUserId = 12345,
+                DisplayReason = $"Test Display {i}",
+                PrivateReason = $"Test Private {i}",
+            });
+        }
+        context.SaveChanges();
+        
+        this.PrepareValidConfiguration();
+        var response = this._banController.HandleListBansRequest(TestRequestContext.FromQuery("?domain=testDomain&robloxUserId=23456&start=3&max=3")).Result;
+        var banEntriesResponse = (BanRecordResponse) response.Response;
+        Assert.That(response.StatusCode, Is.EqualTo(200));
+        Assert.That(banEntriesResponse.Status, Is.EqualTo("Success"));
+        Assert.That(banEntriesResponse.Entries.Count, Is.EqualTo(3));
+        Assert.That(banEntriesResponse.Entries[0].Action.Type, Is.EqualTo(BanAction.Ban));
+        Assert.That(banEntriesResponse.Entries[0].Reason.ActingUserId, Is.EqualTo(12345));
+        Assert.That(banEntriesResponse.Entries[0].Reason.Display, Is.EqualTo("Test Display 6"));
+        Assert.That(banEntriesResponse.Entries[0].Reason.Private, Is.EqualTo("Test Private 6"));
+        Assert.That(banEntriesResponse.Entries[1].Action.Type, Is.EqualTo(BanAction.Unban));
+        Assert.That(banEntriesResponse.Entries[1].Reason.ActingUserId, Is.EqualTo(12345));
+        Assert.That(banEntriesResponse.Entries[1].Reason.Display, Is.EqualTo("Test Display 5"));
+        Assert.That(banEntriesResponse.Entries[1].Reason.Private, Is.EqualTo("Test Private 5"));
+        Assert.That(banEntriesResponse.Entries[2].Action.Type, Is.EqualTo(BanAction.Ban));
+        Assert.That(banEntriesResponse.Entries[2].Reason.ActingUserId, Is.EqualTo(12345));
+        Assert.That(banEntriesResponse.Entries[2].Reason.Display, Is.EqualTo("Test Display 4"));
+        Assert.That(banEntriesResponse.Entries[2].Reason.Private, Is.EqualTo("Test Private 4"));
+    }
+
     public void PrepareValidConfiguration()
     {
         this._testResources.Configuration = new BansConfiguration()
