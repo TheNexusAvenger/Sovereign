@@ -63,9 +63,8 @@ public class TestRequestContext : BaseRequestContext
     /// </summary>
     /// <param name="apiKeys">List of API keys that are valid.</param>
     /// <param name="signatureSecrets">List of request signature secrets that are valid.</param>
-    /// <param name="authorizationSource">Source to base signatures on.</param>
     /// <returns>Whether the request is authorized or not.</returns>
-    public override bool IsAuthorized(List<string>? apiKeys, List<string>? signatureSecrets, RequestAuthorizationSource authorizationSource = RequestAuthorizationSource.Body)
+    public override bool IsAuthorized(List<string>? apiKeys, List<string>? signatureSecrets)
     {
         return this.Authorized;
     }

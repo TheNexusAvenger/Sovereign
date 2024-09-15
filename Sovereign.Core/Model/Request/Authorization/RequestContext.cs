@@ -15,12 +15,18 @@ public enum RequestAuthorizationSource
 public class RequestContext : BaseRequestContext
 {
     /// <summary>
+    /// Authorization source of the request to base the signature check off of.
+    /// </summary>
+    public readonly RequestAuthorizationSource RequestAuthorizationSource;
+    
+    /// <summary>
     /// Creates a request context.
     /// </summary>
     /// <param name="httpContext">HttpContext to read the request from.</param>
-    public RequestContext(HttpContext httpContext) : base(httpContext)
+    /// <param name="authorizationSource">Source to base signatures on.</param>
+    public RequestContext(HttpContext httpContext, RequestAuthorizationSource authorizationSource = RequestAuthorizationSource.Body) : base(httpContext)
     {
-        
+        this.RequestAuthorizationSource = authorizationSource;
     }
 
     /// <summary>
@@ -28,9 +34,8 @@ public class RequestContext : BaseRequestContext
     /// </summary>
     /// <param name="apiKeys">List of API keys that are valid.</param>
     /// <param name="signatureSecrets">List of request signature secrets that are valid.</param>
-    /// <param name="authorizationSource">Source to base signatures on.</param>
     /// <returns>Whether the request is authorized or not.</returns>
-    public override bool IsAuthorized(List<string>? apiKeys, List<string>? signatureSecrets, RequestAuthorizationSource authorizationSource = RequestAuthorizationSource.Body)
+    public override bool IsAuthorized(List<string>? apiKeys, List<string>? signatureSecrets)
     {
         // Return false if there is no authorization header.
         if (this.Authorization == null)
@@ -56,7 +61,7 @@ public class RequestContext : BaseRequestContext
             else if (authorizationScheme == "signature" && signatureSecrets != null)
             {
                 // Return true if a signature matches.
-                var compareData = (authorizationSource == RequestAuthorizationSource.Body ? this.RequestBody : this.RawQuery);
+                var compareData = (this.RequestAuthorizationSource == RequestAuthorizationSource.Body ? this.RequestBody : this.RawQuery);
                 foreach (var signatureSecret in signatureSecrets)
                 {
                     using var sha256 = new HMACSHA256(Encoding.UTF8.GetBytes(signatureSecret));

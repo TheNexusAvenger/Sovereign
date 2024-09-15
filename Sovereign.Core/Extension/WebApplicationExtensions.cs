@@ -18,7 +18,7 @@ public static class WebApplicationExtensions
     {
         @this.MapGet(pattern, async (httpContext) =>
         {
-            var requestContext = new RequestContext(httpContext);
+            var requestContext = new RequestContext(httpContext, RequestAuthorizationSource.Query);
             var response = await requestDelegate(requestContext);
             await response.GetResponse().ExecuteAsync(httpContext);
         });

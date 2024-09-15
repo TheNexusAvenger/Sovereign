@@ -313,7 +313,7 @@ public class BanController
         }
         
         // Return 401 if the authorization header was invalid for the request.
-        if (!requestContext.IsAuthorized(domainData.ApiKeys, domainData.SecretKeys, RequestAuthorizationSource.Query))
+        if (!requestContext.IsAuthorized(domainData.ApiKeys, domainData.SecretKeys))
         {
             return SimpleResponse.UnauthorizedResponse;
         }
