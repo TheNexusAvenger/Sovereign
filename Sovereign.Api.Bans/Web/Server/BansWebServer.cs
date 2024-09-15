@@ -6,7 +6,7 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.DependencyInjection;
 using Sovereign.Api.Bans.Web.Server.Controller;
 using Sovereign.Api.Bans.Web.Server.Model;
-using Sovereign.Core.Model.Request.Authorization;
+using Sovereign.Core.Extension;
 
 namespace Sovereign.Api.Bans.Web.Server;
 
@@ -38,27 +38,15 @@ public class BansWebServer : WebServer
             
             // Add the ban endpoints.
             var banController = new BanController();
-            app.MapPost("/bans/ban", async (httpContext) =>
-            {
-                var requestContext = new RequestContext(httpContext);
-                var response = await banController.HandleBanRequest(requestContext);
-                await response.GetResponse().ExecuteAsync(httpContext);
-            });
-            app.MapGet("/bans/list", async (httpContext) =>
-            {
-                var requestContext = new RequestContext(httpContext);
-                var response = await banController.HandleListBansRequest(requestContext);
-                await response.GetResponse().ExecuteAsync(httpContext);
-            });
+            app.MapPostWithContext("/bans/ban", async (requestContext) =>
+                await banController.HandleBanRequest(requestContext));
+            app.MapGetWithContext("/bans/list", async (requestContext) =>
+                await banController.HandleListBansRequest(requestContext));
             
             // Add the account endpoints.
             var accountLinkController = new AccountLinkController();
-            app.MapPost("/accounts/link", async (httpContext) =>
-            {
-                var requestContext = new RequestContext(httpContext);
-                var response = await accountLinkController.HandleExternalLinkRequest(requestContext);
-                await response.GetResponse().ExecuteAsync(httpContext);
-            });
+            app.MapGetWithContext("/accounts/link", async (requestContext) =>
+                await accountLinkController.HandleExternalLinkRequest(requestContext));
         });
     }
 }
