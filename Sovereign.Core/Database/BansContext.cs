@@ -1,4 +1,5 @@
-﻿using Microsoft.EntityFrameworkCore;
+﻿using System.Linq;
+using Microsoft.EntityFrameworkCore;
 using Sovereign.Core.Database.Model.Api;
 
 namespace Sovereign.Core.Database;
@@ -22,5 +23,18 @@ public class BansContext : BaseContext
     public BansContext(string? filePath = null) : base("Bans", filePath)
     {
         
+    }
+
+    /// <summary>
+    /// Returns the latest ban entries for each user in the database.
+    /// </summary>
+    /// <param name="domain">Domain to fetch the bans for.</param>
+    /// <returns>Query for the current bans.</returns>
+    public IQueryable<BanEntry> GetCurrentBans(string domain)
+    {
+        return this.BanEntries
+            .Where(entry => entry.Domain.ToLower() == domain.ToLower())
+            .GroupBy(entry => entry.TargetRobloxUserId)
+            .Select(entryGroup => entryGroup.OrderByDescending(entry => entry.StartTime).First());
     }
 }
