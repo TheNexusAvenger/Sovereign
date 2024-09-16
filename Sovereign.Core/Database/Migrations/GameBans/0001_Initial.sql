@@ -1,0 +1,6 @@
+﻿CREATE TABLE GameBansHistory (
+    Id INTEGER PRIMARY KEY,
+    Domain TEXT NOT NULL,
+    GameId INTEGER NOT NULL,
+    Time TEXT NOT NULL
+)
