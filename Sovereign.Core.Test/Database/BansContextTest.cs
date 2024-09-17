@@ -17,6 +17,12 @@ public class BansContextTest
         this._bansContext = new BansContext(Path.GetTempFileName());
         this._bansContext.MigrateAsync().Wait();
     }
+
+    [TearDown]
+    public void TearDown()
+    {
+        this._bansContext.Dispose();
+    }
     
     [Test]
     public void TestGetCurrentBans()
