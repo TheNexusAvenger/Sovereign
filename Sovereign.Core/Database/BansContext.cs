@@ -20,7 +20,8 @@ public class BansContext : BaseContext
     /// Creates a bans SQLite context.
     /// </summary>
     /// <param name="filePath">File path to use for the context.</param>
-    public BansContext(string? filePath = null) : base("Bans", filePath)
+    /// <param name="connectMode">Mode for connecting to the database.</param>
+    public BansContext(string? filePath = null, DatabaseConnectMode connectMode = DatabaseConnectMode.ReadWriteCreate) : base("Bans", filePath, connectMode)
     {
         
     }

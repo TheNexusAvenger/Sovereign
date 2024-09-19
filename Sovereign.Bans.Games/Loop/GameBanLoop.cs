@@ -145,7 +145,7 @@ public class GameBanLoop : BaseConfigurableLoop<GameConfiguration>
             {
                 // TODO: Handle loop being stopped.
                 // Build the query and get the bans to handle.
-                await using var bansContext = new BansContext(this.OverrideBansDatabasePath);
+                await using var bansContext = new BansContext(this.OverrideBansDatabasePath, connectMode: DatabaseConnectMode.ReadOnly);
                 var bansQuery = bansContext.GetCurrentBans(domain).Take(BansToIndexInBatch);
                 if (this.LastSuccessfulIndex.HasValue)
                 {

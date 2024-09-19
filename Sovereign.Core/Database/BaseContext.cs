@@ -9,6 +9,14 @@ using Microsoft.EntityFrameworkCore;
 
 namespace Sovereign.Core.Database;
 
+public enum DatabaseConnectMode
+{
+    ReadWriteCreate,
+    ReadWrite,
+    ReadOnly,
+    Memory,
+}
+
 public class BaseContext : DbContext
 {
     /// <summary>
@@ -42,14 +50,21 @@ public class BaseContext : DbContext
     private readonly string? _filePath;
 
     /// <summary>
+    /// Mode for connecting to the database.
+    /// </summary>
+    private readonly DatabaseConnectMode _connectMode;
+
+    /// <summary>
     /// Creates a base SQLite context.
     /// </summary>
     /// <param name="databaseName">Name of the database.</param>
     /// <param name="filePath">File path to use for the context.</param>
-    public BaseContext(string databaseName, string? filePath = null)
+    /// <param name="connectMode">Mode for connecting to the database.</param>
+    public BaseContext(string databaseName, string? filePath = null, DatabaseConnectMode connectMode = DatabaseConnectMode.ReadWriteCreate)
     {
         this._databaseName = databaseName;
         this._filePath = filePath;
+        this._connectMode = connectMode;
     }
     
     /// <summary>
@@ -63,7 +78,7 @@ public class BaseContext : DbContext
         {
             filePath = Path.Combine(databaseDirectoryLocation, filePath);
         }
-        optionsBuilder.UseSqlite($"Data Source=\"{this._filePath ?? filePath}\"");
+        optionsBuilder.UseSqlite($"Data Source=\"{this._filePath ?? filePath}\";Mode={this._connectMode}");
     }
 
     /// <summary>
