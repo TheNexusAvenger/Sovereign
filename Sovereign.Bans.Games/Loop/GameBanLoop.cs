@@ -136,14 +136,19 @@ public class GameBanLoop : BaseConfigurableLoop<GameConfiguration>
     /// </summary>
     public override async Task RunAsync()
     {
+        // Prepare the loop step.
         var domain = this.Configuration.Domain!;
         var gameId = this.Configuration.GameId!.Value;
+        var stepCancellationToken = this.LoopCancellationToken;
         this.Status = GameBanLoopStatus.Running;
+        
         try
         {
             while (true)
             {
-                // TODO: Handle loop being stopped.
+                // Break the loop if it was cancelled.
+                if (stepCancellationToken != null && stepCancellationToken.Value.IsCancellationRequested) break;
+                
                 // Build the query and get the bans to handle.
                 await using var bansContext = new BansContext(this.OverrideBansDatabasePath, connectMode: DatabaseConnectMode.ReadOnly);
                 var bansQuery = bansContext.GetCurrentBans(domain).Take(BansToIndexInBatch);
