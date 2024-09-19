@@ -23,6 +23,7 @@
     </ItemGroup>
 
     <ItemGroup>
+      <ProjectReference Include="..\Bouncer\Bouncer.Test\Bouncer.Test.csproj" />
       <ProjectReference Include="..\Sovereign.Bans.Games\Sovereign.Bans.Games.csproj" />
     </ItemGroup>
 

@@ -7,6 +7,11 @@ namespace Sovereign.Bans.Games.Configuration;
 public class GameConfiguration
 {
     /// <summary>
+    /// Name of the ban domain (games and groups).
+    /// </summary>
+    public string? Domain { get; set; }
+    
+    /// <summary>
     /// Id of the game to assign bans.
     /// </summary>
     public long? GameId { get; set; }
@@ -17,25 +22,12 @@ public class GameConfiguration
     public string? ApiKey { get; set; }
 }
 
-public class DomainConfiguration
-{
-    /// <summary>
-    /// Name of the ban domain (games and groups).
-    /// </summary>
-    public string? Name { get; set; }
-
-    /// <summary>
-    /// Games controlled by the domain.
-    /// </summary>
-    public List<GameConfiguration>? Games { get; set; }
-}
-
 public class GamesConfiguration : BaseConfiguration
 {
     /// <summary>
-    /// Domains to control bans for.
+    /// Games to control bans for.
     /// </summary>
-    public List<DomainConfiguration>? Domains { get; set; } = null!;
+    public List<GameConfiguration>? Games { get; set; } = null!;
     
     /// <summary>
     /// Returns the default configuration to use if the configuration file doesn't exist.
@@ -45,23 +37,19 @@ public class GamesConfiguration : BaseConfiguration
     {
         return new GamesConfiguration()
         {
-            Domains = new List<DomainConfiguration>()
+            Games = new List<GameConfiguration>()
             {
-                new DomainConfiguration() {
-                    Name = "MyGame",
-                    Games = new List<GameConfiguration>()
-                    {
-                        new GameConfiguration()
-                        {
-                            GameId = 12345,
-                            ApiKey = "OpenCloudApiKey1",
-                        },
-                        new GameConfiguration()
-                        {
-                            GameId = 23456,
-                            ApiKey = "OpenCloudApiKey2",
-                        },
-                    },
+                new GameConfiguration()
+                {
+                    Domain = "MyGame",
+                    GameId = 12345,
+                    ApiKey = "OpenCloudApiKey1",
+                },
+                new GameConfiguration()
+                {
+                    Domain = "MyGame",
+                    GameId = 23456,
+                    ApiKey = "OpenCloudApiKey2",
                 },
             },
         };
