@@ -20,6 +20,11 @@ public class GameConfiguration
     /// Open cloud API key for the game.
     /// </summary>
     public string? ApiKey { get; set; }
+
+    /// <summary>
+    /// If true, bans and unbans will not be actually performed.
+    /// </summary>
+    public bool? DryRun { get; set; } = false;
 }
 
 public class GamesConfiguration : BaseConfiguration
@@ -44,12 +49,14 @@ public class GamesConfiguration : BaseConfiguration
                     Domain = "MyGame",
                     GameId = 12345,
                     ApiKey = "OpenCloudApiKey1",
+                    DryRun = true,
                 },
                 new GameConfiguration()
                 {
                     Domain = "MyGame",
                     GameId = 23456,
                     ApiKey = "OpenCloudApiKey2",
+                    DryRun = true,
                 },
             },
         };

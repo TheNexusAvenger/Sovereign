@@ -19,6 +19,7 @@ namespace Sovereign.Bans.Games.Test.Loop;
 public class GameBanLoopTest
 {
     private string _bansContextPath;
+    private GameConfiguration _gameConfiguration;
     private TestHttpClient _testHttpClient;
     private HandledBanCache _handledBanCache;
     private GameBanLoop _gameBanLoop;
@@ -35,13 +36,14 @@ public class GameBanLoopTest
         using var bansContext = new BansContext(this._bansContextPath);
         bansContext.MigrateAsync().Wait();
         
-        this._handledBanCache = new HandledBanCache("TestDomain", 12345, gameBansContextPath);
-        this._gameBanLoop = new GameBanLoop(new GameConfiguration()
+        this._gameConfiguration = new GameConfiguration()
         {
             Domain = "TestDomain",
             GameId = 12345,
             ApiKey = "TestApiKey",
-        }, this._handledBanCache, new RobloxUserRestrictionClient(this._testHttpClient));
+        } ;
+        this._handledBanCache = new HandledBanCache("TestDomain", 12345, gameBansContextPath);
+        this._gameBanLoop = new GameBanLoop(this._gameConfiguration, this._handledBanCache, new RobloxUserRestrictionClient(this._testHttpClient));
         this._gameBanLoop.OverrideBansDatabasePath = this._bansContextPath;
     }
 
@@ -66,6 +68,32 @@ public class GameBanLoopTest
             Domain = "TestDomain",
         }).Wait();
         // An except would be raised if it is handled due to no registered request handler.
+    }
+
+    [Test]
+    public void TestHandleBanAsyncBanDryRun()
+    {
+        this._gameConfiguration.DryRun = true;
+        this._gameBanLoop.HandleBanAsync(new BanEntry()
+        {
+            Id = 1,
+            Domain = "TestDomain",
+            Action = BanAction.Ban,
+        }).Wait();
+        Assert.That(this._handledBanCache.IsHandled(1), Is.False);
+    }
+
+    [Test]
+    public void TestHandleBanAsyncUnbanDryRun()
+    {
+        this._gameConfiguration.DryRun = true;
+        this._gameBanLoop.HandleBanAsync(new BanEntry()
+        {
+            Id = 1,
+            Domain = "TestDomain",
+            Action = BanAction.Unban,
+        }).Wait();
+        Assert.That(this._handledBanCache.IsHandled(1), Is.False);
     }
 
     [Test]

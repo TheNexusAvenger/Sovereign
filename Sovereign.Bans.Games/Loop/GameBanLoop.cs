@@ -113,22 +113,33 @@ public class GameBanLoop : BaseConfigurableLoop<GameConfiguration>
         if (this._handledBanCache.IsHandled(banEntry.Id)) return;
         
         // Send the ban request.
+        var isDryRun = this.Configuration.DryRun == true;
+        var logPrefix = (isDryRun ? "[DRY RUN] " : "");
         var domain = this.Configuration.Domain!;
         var gameId = this.Configuration.GameId!.Value;
         if (banEntry.Action == BanAction.Ban)
         {
-            Logger.Debug($"Banning user in {domain} with {gameId} with ban id {banEntry.Id}");
+            Logger.Debug($"{logPrefix}Banning user in {domain} with {gameId} with ban id {banEntry.Id}");
             long? duration = (banEntry.EndTime != null ? (long) (banEntry.EndTime - banEntry.StartTime).Value.Duration().TotalSeconds : null);
-            await this._robloxUserRestrictionClient.BanAsync(gameId, banEntry.TargetRobloxUserId, banEntry.DisplayReason, banEntry.PrivateReason, duration);
+            if (!isDryRun)
+            {
+                await this._robloxUserRestrictionClient.BanAsync(gameId, banEntry.TargetRobloxUserId, banEntry.DisplayReason, banEntry.PrivateReason, duration);
+            }
         }
         else
         {
-            Logger.Debug($"Unbanning user in {domain} with {gameId} with ban id {banEntry.Id}");
-            await this._robloxUserRestrictionClient.UnbanAsync(gameId, banEntry.TargetRobloxUserId);
+            Logger.Debug($"{logPrefix}Unbanning user in {domain} with {gameId} with ban id {banEntry.Id}");
+            if (!isDryRun)
+            {
+                await this._robloxUserRestrictionClient.UnbanAsync(gameId, banEntry.TargetRobloxUserId);
+            }
         }
         
         // Set the ban as handled.
-        await this._handledBanCache.SetHandledAsync(new List<long>() { banEntry.Id });
+        if (!isDryRun)
+        {
+            await this._handledBanCache.SetHandledAsync(new List<long>() { banEntry.Id });
+        }
     }
     
     /// <summary>
