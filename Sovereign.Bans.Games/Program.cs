@@ -1,4 +1,6 @@
-﻿using Sovereign.Bans.Games.Configuration;
+﻿using System;
+using Bouncer.Diagnostic;
+using Sovereign.Bans.Games.Configuration;
 using Sovereign.Bans.Games.Loop;
 using Sovereign.Bans.Games.Web.Server;
 using Sovereign.Core;
@@ -16,7 +18,13 @@ public class Program : BaseProgram<GamesConfiguration>
         // Migrate the database.
         using var context = new GameBansContext();
         context.MigrateAsync().Wait();
-        
+        if (Environment.GetEnvironmentVariable("DATABASE_DIRECTORY_LOCATION") == null)
+        {
+            Logger.Debug("Creating bans database for testing due to DATABASE_DIRECTORY_LOCATION not being defined.");
+            using var bansContext = new BansContext();
+            bansContext.MigrateAsync().Wait();
+            
+        }
         // Start the game ban loops.
         var gameBanLoopCollection = new GameBanLoopCollection();
         
