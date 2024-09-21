@@ -335,6 +335,7 @@ public class BanControllerTest
         Assert.That(latestBanEntry.TargetRobloxUserId, Is.EqualTo(23456));
         Assert.That(latestBanEntry.Domain, Is.EqualTo("TestDomain"));
         Assert.That(latestBanEntry.Action, Is.EqualTo(BanAction.Ban));
+        Assert.That(latestBanEntry.ExcludeAltAccounts, Is.True);
         Assert.That(Math.Abs((DateTime.Now - latestBanEntry.StartTime).TotalSeconds), Is.LessThan(10));
         Assert.That(latestBanEntry.EndTime, Is.Null);
         Assert.That(latestBanEntry.ActingRobloxUserId, Is.EqualTo(12345));
@@ -359,6 +360,7 @@ public class BanControllerTest
         Assert.That(latestBanEntry.TargetRobloxUserId, Is.EqualTo(23456));
         Assert.That(latestBanEntry.Domain, Is.EqualTo("TestDomain"));
         Assert.That(latestBanEntry.Action, Is.EqualTo(BanAction.Ban));
+        Assert.That(latestBanEntry.ExcludeAltAccounts, Is.True);
         Assert.That(Math.Abs((DateTime.Now - latestBanEntry.StartTime).TotalSeconds), Is.LessThan(10));
         Assert.That(Math.Abs((latestBanEntry.EndTime!.Value - DateTime.Now).TotalSeconds - 120), Is.LessThan(10));
         Assert.That(latestBanEntry.ActingRobloxUserId, Is.EqualTo(12345));
@@ -393,6 +395,7 @@ public class BanControllerTest
         var latestBanEntry = this._testResources.GetBansContext().BanEntries.OrderBy(entry => entry.StartTime).Last();
         Assert.That(latestBanEntry.TargetRobloxUserId, Is.EqualTo(23456));
         Assert.That(latestBanEntry.Domain, Is.EqualTo("TestDomain"));
+        Assert.That(latestBanEntry.ExcludeAltAccounts, Is.True);
         Assert.That(latestBanEntry.Action, Is.EqualTo(BanAction.Ban));
         Assert.That(Math.Abs((DateTime.Now - latestBanEntry.StartTime).TotalSeconds), Is.LessThan(10));
         Assert.That(latestBanEntry.EndTime, Is.Null);
@@ -429,6 +432,7 @@ public class BanControllerTest
         Assert.That(latestBanEntry.TargetRobloxUserId, Is.EqualTo(23456));
         Assert.That(latestBanEntry.Domain, Is.EqualTo("TestDomain"));
         Assert.That(latestBanEntry.Action, Is.EqualTo(BanAction.Unban));
+        Assert.That(latestBanEntry.ExcludeAltAccounts, Is.True);
         Assert.That(Math.Abs((DateTime.Now - latestBanEntry.StartTime).TotalSeconds), Is.LessThan(10));
         Assert.That(latestBanEntry.EndTime, Is.Null);
         Assert.That(latestBanEntry.ActingRobloxUserId, Is.EqualTo(12345));
@@ -552,6 +556,7 @@ public class BanControllerTest
         Assert.That(latestBanEntry.TargetRobloxUserId, Is.EqualTo(23456));
         Assert.That(latestBanEntry.Domain, Is.EqualTo("TestDomain"));
         Assert.That(latestBanEntry.Action, Is.EqualTo(BanAction.Ban));
+        Assert.That(latestBanEntry.ExcludeAltAccounts, Is.True);
         Assert.That(Math.Abs((DateTime.Now - latestBanEntry.StartTime).TotalSeconds), Is.LessThan(10));
         Assert.That(latestBanEntry.EndTime, Is.Null);
         Assert.That(latestBanEntry.ActingRobloxUserId, Is.EqualTo(12345));
@@ -639,6 +644,7 @@ public class BanControllerTest
                 TargetRobloxUserId = 23456,
                 Domain = "TestDomain",
                 Action = (i % 2 == 0 ? BanAction.Ban : BanAction.Unban),
+                ExcludeAltAccounts = (i % 2 == 0),
                 StartTime = DateTime.Now.AddDays(i),
                 ActingRobloxUserId = 12345,
                 DisplayReason = $"Test Display {i}",
@@ -654,14 +660,17 @@ public class BanControllerTest
         Assert.That(banEntriesResponse.Status, Is.EqualTo("Success"));
         Assert.That(banEntriesResponse.Entries.Count, Is.EqualTo(3));
         Assert.That(banEntriesResponse.Entries[0].Action.Type, Is.EqualTo(BanAction.Unban));
+        Assert.That(banEntriesResponse.Entries[0].Action.ExcludeAltAccounts, Is.False);
         Assert.That(banEntriesResponse.Entries[0].Reason.ActingUserId, Is.EqualTo(12345));
         Assert.That(banEntriesResponse.Entries[0].Reason.Display, Is.EqualTo("Test Display 9"));
         Assert.That(banEntriesResponse.Entries[0].Reason.Private, Is.EqualTo("Test Private 9"));
         Assert.That(banEntriesResponse.Entries[1].Action.Type, Is.EqualTo(BanAction.Ban));
+        Assert.That(banEntriesResponse.Entries[1].Action.ExcludeAltAccounts, Is.True);
         Assert.That(banEntriesResponse.Entries[1].Reason.ActingUserId, Is.EqualTo(12345));
         Assert.That(banEntriesResponse.Entries[1].Reason.Display, Is.EqualTo("Test Display 8"));
         Assert.That(banEntriesResponse.Entries[1].Reason.Private, Is.EqualTo("Test Private 8"));
         Assert.That(banEntriesResponse.Entries[2].Action.Type, Is.EqualTo(BanAction.Unban));
+        Assert.That(banEntriesResponse.Entries[2].Action.ExcludeAltAccounts, Is.False);
         Assert.That(banEntriesResponse.Entries[2].Reason.ActingUserId, Is.EqualTo(12345));
         Assert.That(banEntriesResponse.Entries[2].Reason.Display, Is.EqualTo("Test Display 7"));
         Assert.That(banEntriesResponse.Entries[2].Reason.Private, Is.EqualTo("Test Private 7"));
@@ -742,6 +751,7 @@ public class BanControllerTest
             {
                 Type = action,
                 UserIds = new List<long>() { 23456 },
+                ExcludeAltAccounts = true,
             },
             Reason = new BanRequestReason()
             {

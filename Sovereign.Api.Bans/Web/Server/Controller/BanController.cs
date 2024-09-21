@@ -204,6 +204,7 @@ public class BanController
                     TargetRobloxUserId = targetRobloxId,
                     Domain = banDomain,
                     Action = BanAction.Ban,
+                    ExcludeAltAccounts = request.Action!.ExcludeAltAccounts,
                     StartTime = currentTime,
                     EndTime = endTime,
                     ActingRobloxUserId = actingRobloxId,
@@ -220,6 +221,7 @@ public class BanController
                     TargetRobloxUserId = targetRobloxId,
                     Domain = banDomain,
                     Action = BanAction.Unban,
+                    ExcludeAltAccounts = request.Action!.ExcludeAltAccounts,
                     StartTime = currentTime,
                     ActingRobloxUserId = actingRobloxId,
                     DisplayReason = request.Reason!.Display!,
@@ -332,6 +334,7 @@ public class BanController
                 Action =
                 {
                     Type = entry.Action,
+                    ExcludeAltAccounts = entry.ExcludeAltAccounts,
                     StartTime = entry.StartTime,
                     EndTime = entry.EndTime,
                 },

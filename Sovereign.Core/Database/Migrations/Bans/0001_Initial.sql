@@ -3,6 +3,7 @@ CREATE TABLE BanEntries (
     TargetRobloxUserId INTEGER NOT NULL,
     Domain TEXT NOT NULL,
     Action TEXT NOT NULL,
+    ExcludeAltAccounts BOOLEAN NOT NULL,
     StartTime TEXT NOT NULL,
     EndTime TEXT,
     ActingRobloxUserId INTEGER NOT NULL,

@@ -123,7 +123,7 @@ public class GameBanLoop : BaseConfigurableLoop<GameConfiguration>
             long? duration = (banEntry.EndTime != null ? (long) (banEntry.EndTime - banEntry.StartTime).Value.Duration().TotalSeconds : null);
             if (!isDryRun)
             {
-                await this._robloxUserRestrictionClient.BanAsync(gameId, banEntry.TargetRobloxUserId, banEntry.DisplayReason, banEntry.PrivateReason, duration);
+                await this._robloxUserRestrictionClient.BanAsync(gameId, banEntry.TargetRobloxUserId, banEntry.DisplayReason, banEntry.PrivateReason, duration, banEntry.ExcludeAltAccounts);
             }
         }
         else
@@ -131,7 +131,7 @@ public class GameBanLoop : BaseConfigurableLoop<GameConfiguration>
             Logger.Debug($"{logPrefix}Unbanning user in {domain} with {gameId} with ban id {banEntry.Id}");
             if (!isDryRun)
             {
-                await this._robloxUserRestrictionClient.UnbanAsync(gameId, banEntry.TargetRobloxUserId);
+                await this._robloxUserRestrictionClient.UnbanAsync(gameId, banEntry.TargetRobloxUserId, banEntry.ExcludeAltAccounts);
             }
         }
         

@@ -118,6 +118,7 @@ public class GameBanLoopTest
             Id = 1,
             Domain = "TestDomain",
             Action = BanAction.Ban,
+            ExcludeAltAccounts = true,
             StartTime = DateTime.Now,
             TargetRobloxUserId = 123,
             DisplayReason = "Test Display",
@@ -129,7 +130,7 @@ public class GameBanLoopTest
         Assert.That(requestData!.GameJoinRestriction.Duration, Is.Null);
         Assert.That(requestData!.GameJoinRestriction.DisplayReason, Is.EqualTo("Test Display"));
         Assert.That(requestData!.GameJoinRestriction.PrivateReason, Is.EqualTo("Test Private"));
-        Assert.That(requestData!.GameJoinRestriction.ExcludeAltAccounts, Is.False);
+        Assert.That(requestData!.GameJoinRestriction.ExcludeAltAccounts, Is.True);
     }
     
     [Test]

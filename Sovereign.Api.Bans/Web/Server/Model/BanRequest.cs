@@ -29,6 +29,12 @@ public class BanRequestAction
     /// User ids to perform the action on.
     /// </summary>
     public List<long>? UserIds { get; set; }
+
+    /// <summary>
+    /// If true, alt accounts will not be banned or unbanned.
+    /// Not all banning outputs support this.
+    /// </summary>
+    public bool ExcludeAltAccounts { get; set; } = false;
     
     /// <summary>
     /// Optional duration of the ban.

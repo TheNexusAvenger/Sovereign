@@ -31,6 +31,12 @@ public class BanEntry
     /// </summary>
     [Required]
     public BanAction Action { get; set; }
+
+    /// <summary>
+    /// If true, alt accounts will not be banned or unbanned.
+    /// Not all banning outputs support this.
+    /// </summary>
+    public bool ExcludeAltAccounts { get; set; } = false;
     
     /// <summary>
     /// Start time of the action.

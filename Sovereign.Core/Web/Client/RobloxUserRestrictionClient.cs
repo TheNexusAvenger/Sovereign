@@ -58,8 +58,9 @@ public class RobloxUserRestrictionClient
     /// <param name="displayReason">Display reason to present to the user.</param>
     /// <param name="privateReason">Private reason to associate with the user.</param>
     /// <param name="duration">Optional duration of the ban (in seconds).</param>
+    /// <param name="excludeAltAccounts">If true, alt accounts will not be banned or unbanned.</param>
     /// <returns>The response for the ban request.</returns>
-    public async Task<UserRestrictionResponse> BanAsync(long universeId, long userId, string displayReason, string privateReason, long? duration = null)
+    public async Task<UserRestrictionResponse> BanAsync(long universeId, long userId, string displayReason, string privateReason, long? duration = null, bool excludeAltAccounts = false)
     {
         return await this._robloxClient.RequestAsync(HttpMethod.Patch,
             $"https://apis.roblox.com/cloud/v2/universes/{universeId}/user-restrictions/{userId}",
@@ -72,7 +73,7 @@ public class RobloxUserRestrictionClient
                         Duration = duration == null ? null : $"{duration}s",
                         PrivateReason = ClampString(privateReason, MaxPrivateReasonLength),
                         DisplayReason = ClampString(displayReason, MaxDisplayReasonLength),
-                        ExcludeAltAccounts = false,
+                        ExcludeAltAccounts = excludeAltAccounts,
                     },
                 }, UserRestrictionRequestJsonContext.Default.UserRestrictionRequest));
     }
@@ -82,8 +83,9 @@ public class RobloxUserRestrictionClient
     /// </summary>
     /// <param name="universeId">Id of the universe to unban the user from.</param>
     /// <param name="userId">Roblox user id to unban from the universe.</param>
+    /// <param name="excludeAltAccounts">If true, alt accounts will not be banned or unbanned.</param>
     /// <returns>The response for the unban request.</returns>
-    public async Task<UserRestrictionResponse> UnbanAsync(long universeId, long userId)
+    public async Task<UserRestrictionResponse> UnbanAsync(long universeId, long userId, bool excludeAltAccounts = false)
     {
         return await this._robloxClient.RequestAsync(HttpMethod.Patch,
             $"https://apis.roblox.com/cloud/v2/universes/{universeId}/user-restrictions/{userId}",
@@ -93,6 +95,7 @@ public class RobloxUserRestrictionClient
                     GameJoinRestriction =
                     {
                         Active = false,
+                        ExcludeAltAccounts = excludeAltAccounts,
                     },
                 }, UserRestrictionRequestJsonContext.Default.UserRestrictionRequest));
     }
