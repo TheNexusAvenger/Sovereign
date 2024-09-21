@@ -1,4 +1,5 @@
 ﻿using Sovereign.Bans.Games.Configuration;
+using Sovereign.Bans.Games.Loop;
 using Sovereign.Bans.Games.Web.Server;
 using Sovereign.Core;
 using Sovereign.Core.Database;
@@ -16,8 +17,11 @@ public class Program : BaseProgram<GamesConfiguration>
         using var context = new GameBansContext();
         context.MigrateAsync().Wait();
         
+        // Start the game ban loops.
+        var gameBanLoopCollection = new GameBanLoopCollection();
+        
         // Start the web server.
-        new GamesWebServer().StartAsync().Wait();
+        new GamesWebServer().StartAsync(gameBanLoopCollection).Wait();
     }
 
     /// <summary>

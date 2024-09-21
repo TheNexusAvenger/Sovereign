@@ -152,21 +152,23 @@ public class GameBanLoop : BaseConfigurableLoop<GameConfiguration>
         var gameId = this.Configuration.GameId!.Value;
         var stepCancellationToken = this.LoopCancellationToken;
         this.Status = GameBanLoopStatus.Running;
-        
+
         try
         {
             while (true)
             {
                 // Break the loop if it was cancelled.
                 if (stepCancellationToken != null && stepCancellationToken.Value.IsCancellationRequested) break;
-                
+
                 // Build the query and get the bans to handle.
-                await using var bansContext = new BansContext(this.OverrideBansDatabasePath, connectMode: DatabaseConnectMode.ReadOnly);
+                await using var bansContext = new BansContext(this.OverrideBansDatabasePath,
+                    connectMode: DatabaseConnectMode.ReadOnly);
                 var bansQuery = bansContext.GetCurrentBans(domain).Take(BansToIndexInBatch);
                 if (this.LastSuccessfulIndex.HasValue)
                 {
                     bansQuery = bansQuery.Skip(this.LastSuccessfulIndex.Value + 1);
                 }
+
                 var bansToHandle = await bansQuery.ToListAsync();
 
                 // Break the loop if no bans remain.
@@ -187,6 +189,7 @@ public class GameBanLoop : BaseConfigurableLoop<GameConfiguration>
                     this.LastSuccessfulIndex = (this.LastSuccessfulIndex ?? -1) + 1;
                 }
             }
+
             this.Status = GameBanLoopStatus.Complete;
         }
         catch (OpenCloudAccessException e)
@@ -194,7 +197,8 @@ public class GameBanLoop : BaseConfigurableLoop<GameConfiguration>
             // Change the status and throw the exception if it wasn't too many requests.
             if (e.Issue == OpenCloudAccessIssue.TooManyRequests)
             {
-                Logger.Warn($"Loop \"{this.Name}\" ran out of requests. Background bans will be continued in the next step.");
+                Logger.Warn(
+                    $"Loop \"{this.Name}\" ran out of requests. Background bans will be continued in the next step.");
                 this.Status = GameBanLoopStatus.TooManyRequests;
             }
             else if (e.Issue != OpenCloudAccessIssue.Unknown)
@@ -209,6 +213,11 @@ public class GameBanLoop : BaseConfigurableLoop<GameConfiguration>
                 this.LastSuccessfulIndex = (this.LastSuccessfulIndex ?? -1) + 1;
                 throw;
             }
+        }
+        catch (Exception)
+        {
+            this.Status = GameBanLoopStatus.Error;
+            throw;
         }
     }
     
