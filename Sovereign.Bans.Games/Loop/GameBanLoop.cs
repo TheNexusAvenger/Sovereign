@@ -109,17 +109,25 @@ public class GameBanLoop : BaseConfigurableLoop<GameConfiguration>
     public async Task HandleBanAsync(BanEntry banEntry)
     {
         // Return if the ban is already handled.
-        if (!string.Equals(banEntry.Domain, this.Configuration.Domain, StringComparison.CurrentCultureIgnoreCase)) return;
-        if (this._handledBanCache.IsHandled(banEntry.Id)) return;
+        var gameId = this.Configuration.GameId!.Value;
+        if (!string.Equals(banEntry.Domain, this.Configuration.Domain, StringComparison.CurrentCultureIgnoreCase))
+        {
+            Logger.Trace($"Ignoring ban {banEntry.Id} for domain {banEntry.Domain} with game id {gameId} because the ban is not for the domain.");
+            return;
+        }
+        if (this._handledBanCache.IsHandled(banEntry.Id))
+        {
+            Logger.Trace($"Ignoring ban {banEntry.Id} for domain {banEntry.Domain} with game id {gameId} because the ban is already handled.");
+            return;
+        }
         
         // Send the ban request.
         var isDryRun = this.Configuration.DryRun == true;
         var logPrefix = (isDryRun ? "[DRY RUN] " : "");
         var domain = this.Configuration.Domain!;
-        var gameId = this.Configuration.GameId!.Value;
         if (banEntry.Action == BanAction.Ban)
         {
-            Logger.Debug($"{logPrefix}Banning user in {domain} with {gameId} with ban id {banEntry.Id}");
+            Logger.Debug($"{logPrefix}Banning user in {domain} with game id {gameId} with ban id {banEntry.Id}");
             long? duration = (banEntry.EndTime != null ? (long) (banEntry.EndTime - banEntry.StartTime).Value.Duration().TotalSeconds : null);
             if (!isDryRun)
             {
@@ -128,7 +136,7 @@ public class GameBanLoop : BaseConfigurableLoop<GameConfiguration>
         }
         else
         {
-            Logger.Debug($"{logPrefix}Unbanning user in {domain} with {gameId} with ban id {banEntry.Id}");
+            Logger.Debug($"{logPrefix}Unbanning user in {domain} with game id {gameId} with ban id {banEntry.Id}");
             if (!isDryRun)
             {
                 await this._robloxUserRestrictionClient.UnbanAsync(gameId, banEntry.TargetRobloxUserId, banEntry.ExcludeAltAccounts);
@@ -152,13 +160,25 @@ public class GameBanLoop : BaseConfigurableLoop<GameConfiguration>
         var gameId = this.Configuration.GameId!.Value;
         var stepCancellationToken = this.LoopCancellationToken;
         this.Status = GameBanLoopStatus.Running;
+        if (this.LastSuccessfulIndex.HasValue)
+        {
+            Logger.Info($"Resuming background game ban loop for domain {domain} with game id {gameId} at index {this.LastSuccessfulIndex.Value}.");
+        }
+        else
+        {
+            Logger.Info($"Starting background game ban loop for domain {domain} with game id {gameId}.");
+        }
 
         try
         {
             while (true)
             {
                 // Break the loop if it was cancelled.
-                if (stepCancellationToken != null && stepCancellationToken.Value.IsCancellationRequested) break;
+                if (stepCancellationToken != null && stepCancellationToken.Value.IsCancellationRequested)
+                {
+                    Logger.Debug($"Stopping background game ban processing domain {domain} with game id {gameId}.");
+                    break;
+                };
 
                 // Build the query and get the bans to handle.
                 await using var bansContext = new BansContext(this.OverrideBansDatabasePath,
@@ -168,16 +188,16 @@ public class GameBanLoop : BaseConfigurableLoop<GameConfiguration>
                 {
                     bansQuery = bansQuery.Skip(this.LastSuccessfulIndex.Value + 1);
                 }
-
                 var bansToHandle = await bansQuery.ToListAsync();
 
                 // Break the loop if no bans remain.
                 if (bansToHandle.Count == 0)
                 {
-                    Logger.Debug($"Finished processing bans for {domain} game {gameId}.");
+                    Logger.Info($"Finished processing bans for {domain} game {gameId}.");
                     this.LastSuccessfulIndex = null;
                     break;
                 }
+                Logger.Debug($"Handling {bansToHandle.Count} bans for {domain} game {gameId}.");
 
                 // Handle the bans/unbans.
                 foreach (var banEntry in bansQuery)

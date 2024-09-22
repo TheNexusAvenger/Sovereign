@@ -30,6 +30,7 @@ public class BanController
         var request = requestContext.GetRequest(BanRequestJsonContext.Default.BanRequest);
         if (request == null)
         {
+            Logger.Trace("Ignoring request to POST /bans/ban due to unreadable JSON.");
             return SimpleResponse.MalformedRequestResponse;
         }
         
@@ -118,6 +119,7 @@ public class BanController
         });
         if (validationError != null)
         {
+            Logger.Trace($"Ignoring request to POST /bans/ban due {validationError.Errors.Count} validation errors.");
             return new JsonResponse(validationError, 400);
         }
         
@@ -133,12 +135,14 @@ public class BanController
         var domainData = domains.FirstOrDefault(domainData => domainData.Name != null && domainData.Name.ToLower() == domain);
         if (domainData == null)
         {
+            Logger.Trace("Ignoring request to POST /bans/ban due an invalid domain.");
             return SimpleResponse.UnauthorizedResponse;
         }
         
         // Return 401 if the authorization header was invalid for the request.
         if (!requestContext.IsAuthorized(domainData.ApiKeys, domainData.SecretKeys))
         {
+            Logger.Trace("Ignoring request to POST /bans/ban due to an invalid or missing authorization header.");
             return SimpleResponse.UnauthorizedResponse;
         }
         
@@ -152,12 +156,14 @@ public class BanController
             var authenticationLink = await bansContext.ExternalAccountLinks.FirstOrDefaultAsync(link => link.Domain.ToLower() == domain && link.LinkMethod.ToLower() == authenticationMethod && link.LinkData == authenticationData);
             if (authenticationLink == null)
             {
+                Logger.Trace($"Ignoring request to POST /bans/ban due to no account link in domain {domain} for link method {authenticationMethod}");
                 return SimpleResponse.UnauthorizedResponse;
             }
             authenticationData = authenticationLink.RobloxUserId.ToString();
         }
         if (!long.TryParse(authenticationData, out var actingRobloxId))
         {
+            Logger.Trace($"Ignoring request to POST /bans/ban due to malformed Roblox user id \"{actingRobloxId}\"");
             return SimpleResponse.UnauthorizedResponse;
         }
         
@@ -165,6 +171,7 @@ public class BanController
         var authorizationError = domainData.IsRobloxUserAuthorized(actingRobloxId);
         if (authorizationError != null)
         {
+            Logger.Trace($"Ignoring request to POST /bans/ban due to no authorization in domain {domain} for link method {authenticationMethod}");
             return authorizationError;
         }
         
@@ -296,6 +303,7 @@ public class BanController
         });
         if (validationError != null)
         {
+            Logger.Trace($"Ignoring request to POST /bans/list due {validationError.Errors.Count} validation errors.");
             return new JsonResponse(validationError, 400);
         }
         
@@ -311,12 +319,14 @@ public class BanController
         var domainData = domains.FirstOrDefault(domainData => domainData.Name != null && domainData.Name.ToLower() == domain);
         if (domainData == null)
         {
+            Logger.Trace("Ignoring request to POST /bans/list due an invalid domain.");
             return SimpleResponse.UnauthorizedResponse;
         }
         
         // Return 401 if the authorization header was invalid for the request.
         if (!requestContext.IsAuthorized(domainData.ApiKeys, domainData.SecretKeys))
         {
+            Logger.Trace("Ignoring request to GET /bans/list due to an invalid or missing authorization header.");
             return SimpleResponse.UnauthorizedResponse;
         }
         
@@ -327,6 +337,7 @@ public class BanController
             .OrderByDescending(entry => entry.StartTime)
             .Skip(startIndex)
             .Take(Math.Min(maxEntries, 100)).ToListAsync();
+        Logger.Debug($"Returning {banEntries.Count} for domain {domain} user id {robloxUserId}.");
         return new JsonResponse(new BanRecordResponse()
         {
             Entries = banEntries.Select(entry => new BanRecordResponseEntry()

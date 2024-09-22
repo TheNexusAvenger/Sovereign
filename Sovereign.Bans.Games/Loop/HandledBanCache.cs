@@ -2,6 +2,7 @@
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
+using Bouncer.Diagnostic;
 using Sovereign.Core.Database;
 using Sovereign.Core.Database.Model.Bans;
 
@@ -78,6 +79,7 @@ public class HandledBanCache
             foreach (var banId in banIds)
             {
                 if (this.IsHandled(banId)) continue;
+                Logger.Trace($"Setting ban {banId} for domain {this.Domain} with game id {this.GameId} as handled.");
                 context.GameBansHistory.Add(new GameBansHistoryEntry()
                 {
                     Id = banId,

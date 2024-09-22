@@ -45,7 +45,7 @@ public class BansWebServer : WebServer
             
             // Add the account endpoints.
             var accountLinkController = new AccountLinkController();
-            app.MapGetWithContext("/accounts/link", async (requestContext) =>
+            app.MapPostWithContext("/accounts/link", async (requestContext) =>
                 await accountLinkController.HandleExternalLinkRequest(requestContext));
         });
     }

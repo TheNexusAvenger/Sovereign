@@ -27,6 +27,7 @@ public class AccountLinkController
         var request = requestContext.GetRequest(ExternalLinkRequestJsonContext.Default.ExternalLinkRequest);
         if (request == null)
         {
+            Logger.Trace("Ignoring request to POST /accounts/link due to unreadable JSON.");
             return SimpleResponse.MalformedRequestResponse;
         }
         
@@ -60,6 +61,7 @@ public class AccountLinkController
         });
         if (validationError != null)
         {
+            Logger.Trace($"Ignoring request to POST /accounts/link due {validationError.Errors.Count} validation errors.");
             return new JsonResponse(validationError, 400);
         }
         
@@ -75,12 +77,14 @@ public class AccountLinkController
         var domainData = domains.FirstOrDefault(domainData => domainData.Name != null && domainData.Name.ToLower() == domain);
         if (domainData == null)
         {
+            Logger.Trace("Ignoring request to POST /accounts/link due an invalid domain.");
             return SimpleResponse.UnauthorizedResponse;
         }
         
         // Return 401 if the authorization header was invalid for the request.
         if (!requestContext.IsAuthorized(domainData.ApiKeys, domainData.SecretKeys))
         {
+            Logger.Trace("Ignoring request to POST /accounts/link due to an invalid or missing authorization header.");
             return SimpleResponse.UnauthorizedResponse;
         }
         
@@ -93,6 +97,7 @@ public class AccountLinkController
         if (existingBansContext != null)
         {
             // Update the link data.
+            Logger.Info($"Updating external account link in domain {domain} for user {robloxUserId} with method {request.LinkMethod} to \"{request.LinkData}\"");
             existingBansContext.LinkData = request.LinkData!;
         }
         else
@@ -102,10 +107,12 @@ public class AccountLinkController
             var authorizationError = domainData.IsRobloxUserAuthorized(robloxUserId);
             if (authorizationError != null)
             {
+                Logger.Trace($"Ignoring request to POST /accounts/link in domain {domain} due to user {robloxUserId} not be authorized for the domain.");
                 return authorizationError;
             }
             
             // Add the link.
+            Logger.Info($"Adding external account link in domain {domain} for user {robloxUserId} with method {request.LinkMethod} to \"{request.LinkData}\"");
             bansContext.ExternalAccountLinks.Add(new ExternalAccountLink()
             {
                 Domain = domainData.Name!,
