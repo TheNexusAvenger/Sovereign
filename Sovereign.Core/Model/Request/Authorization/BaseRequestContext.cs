@@ -4,6 +4,7 @@ using System.IO;
 using System.Linq;
 using System.Text.Json;
 using System.Text.Json.Serialization.Metadata;
+using Bouncer.Diagnostic;
 using Microsoft.AspNetCore.Http;
 
 namespace Sovereign.Core.Model.Request.Authorization;
@@ -54,9 +55,10 @@ public abstract class BaseRequestContext
         {
             return JsonSerializer.Deserialize(this.RequestBody, jsonTypeInfo);
         }
-        catch (Exception)
+        catch (Exception e)
         {
             // JSON is malformed in this case.
+            Logger.Trace($"Error processing JSON request: {e}");
             return default;
         }
     }
