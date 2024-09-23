@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Text.Json;
@@ -49,7 +50,15 @@ public abstract class BaseRequestContext
     /// <returns>Request body, if it could be parsed.</returns>
     public T? GetRequest<T>(JsonTypeInfo<T> jsonTypeInfo)
     {
-        return JsonSerializer.Deserialize(this.RequestBody, jsonTypeInfo);
+        try
+        {
+            return JsonSerializer.Deserialize(this.RequestBody, jsonTypeInfo);
+        }
+        catch (Exception)
+        {
+            // JSON is malformed in this case.
+            return default;
+        }
     }
 
     /// <summary>
