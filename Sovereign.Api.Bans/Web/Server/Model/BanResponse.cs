@@ -10,11 +10,13 @@ public class BanResponse : BaseResponse
     /// <summary>
     /// List of users that were banned.
     /// </summary>
+    [JsonPropertyName("bannedUserIds")]
     public List<long> BannedUserIds { get; set; } = null!;
     
     /// <summary>
     /// List of users that were unbanned.
     /// </summary>
+    [JsonPropertyName("unbannedUserIds")]
     public List<long> UnbannedUserIds { get; set; } = null!;
     
     /// <summary>

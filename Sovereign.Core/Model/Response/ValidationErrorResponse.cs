@@ -10,11 +10,13 @@ public class ValidationError
     /// <summary>
     /// Path of the error.
     /// </summary>
+    [JsonPropertyName("path")]
     public string? Path { get; set; }
     
     /// <summary>
     /// Message of the error.
     /// </summary>
+    [JsonPropertyName("message")]
     public string? Message { get; set; }
 }
 
@@ -49,6 +51,7 @@ public class ValidationErrorResponse : BaseResponse
     /// <summary>
     /// Validation errors to return.
     /// </summary>
+    [JsonPropertyName("errors")]
     public List<ValidationError> Errors { get; set; } = null!;
 
     /// <summary>

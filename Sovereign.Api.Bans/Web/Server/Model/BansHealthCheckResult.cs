@@ -9,11 +9,13 @@ public class BansHealthCheckResult
     /// Status of the combined health check.
     /// </summary>
     [JsonConverter(typeof(JsonStringEnumConverter))]
+    [JsonPropertyName("status")]
     public HealthCheckResultStatus Status { get; set; } = HealthCheckResultStatus.Up;
 
     /// <summary>
     /// Summary of the health check for the configuration.
     /// </summary>
+    [JsonPropertyName("configuration")]
     public HealthCheckConfigurationProblems Configuration { get; set; } = new HealthCheckConfigurationProblems();
 }
 
