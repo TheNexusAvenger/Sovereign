@@ -156,7 +156,7 @@ public class BanController
             var authenticationLink = await bansContext.ExternalAccountLinks.FirstOrDefaultAsync(link => link.Domain.ToLower() == domain && link.LinkMethod.ToLower() == authenticationMethod && link.LinkData == authenticationData);
             if (authenticationLink == null)
             {
-                Logger.Trace($"Ignoring request to POST /bans/ban due to no account link in domain {domain} for link method {authenticationMethod}");
+                Logger.Trace($"Ignoring request to POST /bans/ban due to no account link in domain {domainData.Name} for link method \"{authenticationMethod}\".");
                 return SimpleResponse.UnauthorizedResponse;
             }
             authenticationData = authenticationLink.RobloxUserId.ToString();
@@ -171,7 +171,7 @@ public class BanController
         var authorizationError = domainData.IsRobloxUserAuthorized(actingRobloxId);
         if (authorizationError != null)
         {
-            Logger.Trace($"Ignoring request to POST /bans/ban due to no authorization in domain {domain} for link method {authenticationMethod}");
+            Logger.Trace($"Ignoring request to POST /bans/ban due to no authorization in domain {domainData.Name} for link method \"{authenticationMethod}\".");
             return authorizationError;
         }
         
@@ -188,7 +188,7 @@ public class BanController
                     var targetUserRank = await robloxGroupClient.GetRankInGroupAsync(targetRobloxId, groupId);
                     if (banningUserRank <= 0 && targetUserRank <= 0) continue;
                     if (banningUserRank > targetUserRank) continue;
-                    Logger.Info($"Ignoring request to POST /bans/ban in domain {domain} due to {actingRobloxId} ({banningUserRank}) being above or the same rank as {targetRobloxId} ({targetUserRank}) in group {groupId}.");
+                    Logger.Info($"Ignoring request to POST /bans/ban in domain {domainData.Name} due to {actingRobloxId} ({banningUserRank}) being above or the same rank as {targetRobloxId} ({targetUserRank}) in group {groupId}.");
                     return new JsonResponse(new SimpleResponse("GroupRankPermissionError"), 403);
                 }
             }
@@ -356,7 +356,7 @@ public class BanController
             .OrderByDescending(entry => entry.StartTime)
             .Skip(startIndex)
             .Take(Math.Min(maxEntries, 100)).ToListAsync();
-        Logger.Debug($"Returning {banEntries.Count} for domain {domain} user id {robloxUserId}.");
+        Logger.Debug($"Returning {banEntries.Count} for domain {domainData.Name} user id {robloxUserId}.");
         return new JsonResponse(new BanRecordResponse()
         {
             Entries = banEntries.Select(entry => new BanRecordResponseEntry()
