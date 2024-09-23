@@ -1,4 +1,5 @@
 ﻿using Bouncer.State;
+using Bouncer.Web.Client;
 using Sovereign.Api.Bans.Configuration;
 using Sovereign.Core.Database;
 
@@ -13,6 +14,15 @@ public class BanControllerResources : IBanControllerResources
     public BansConfiguration GetConfiguration()
     {
         return Configurations.GetConfiguration<BansConfiguration>();
+    }
+    
+    /// <summary>
+    /// Returns the client used to for group rank checks.
+    /// </summary>
+    /// <returns>The client used to for group rank checks.</returns>
+    public RobloxGroupClient GetRobloxGroupClient()
+    {
+        return new RobloxGroupClient();
     }
 
     /// <summary>

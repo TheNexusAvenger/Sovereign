@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Net;
 using NUnit.Framework;
 using Sovereign.Api.Bans.Configuration;
 using Sovereign.Api.Bans.Test.Web.Server.Controller.Shim;
@@ -319,6 +320,23 @@ public class BanControllerTest
         Assert.That(response.StatusCode, Is.EqualTo(403));
         Assert.That(simpleResponse.Status, Is.EqualTo("Forbidden"));
     }
+    
+    [Test]
+    public void TestHandleBanRequestGroupRankError()
+    {
+        PrepareValidConfiguration();
+        this._testResources.Configuration.Domains![0].GroupIdRankChecks = new List<long>()
+        {
+            1788L,
+        };
+        this._testResources.TestHttpClient.SetResponse("https://groups.roblox.com/v2/users/12345/groups/roles", HttpStatusCode.OK, "{\"data\":[{\"group\":{\"id\":1788},\"role\":{\"rank\":100}}]}");
+        this._testResources.TestHttpClient.SetResponse("https://groups.roblox.com/v2/users/23456/groups/roles", HttpStatusCode.OK, "{\"data\":[{\"group\":{\"id\":1788},\"role\":{\"rank\":100}}]}");
+
+        var response = this._banController.HandleBanRequest(GetContext(this.PrepareValidResponse())).Result;
+        var simpleResponse = response.Response;
+        Assert.That(response.StatusCode, Is.EqualTo(403));
+        Assert.That(simpleResponse.Status, Is.EqualTo("GroupRankPermissionError"));
+    }
 
     [Test]
     public void TestHandleBanRequestPermanentBan()
@@ -562,6 +580,40 @@ public class BanControllerTest
         Assert.That(latestBanEntry.ActingRobloxUserId, Is.EqualTo(12345));
         Assert.That(latestBanEntry.DisplayReason, Is.EqualTo("Test Message 1"));
         Assert.That(latestBanEntry.PrivateReason, Is.EqualTo("Test Message 2"));
+    }
+    
+    [Test]
+    public void TestHandleBanRequestCorrectGroupRanks()
+    {
+        PrepareValidConfiguration();
+        this._testResources.Configuration.Domains![0].GroupIdRankChecks = new List<long>()
+        {
+            1788L, // Does anyone get this reference?
+        };
+        this._testResources.TestHttpClient.SetResponse("https://groups.roblox.com/v2/users/12345/groups/roles", HttpStatusCode.OK, "{\"data\":[{\"group\":{\"id\":1788},\"role\":{\"rank\":101}}]}");
+        this._testResources.TestHttpClient.SetResponse("https://groups.roblox.com/v2/users/23456/groups/roles", HttpStatusCode.OK, "{\"data\":[{\"group\":{\"id\":1788},\"role\":{\"rank\":100}}]}");
+
+        var response = this._banController.HandleBanRequest(GetContext(this.PrepareValidResponse())).Result;
+        var simpleResponse = response.Response;
+        Assert.That(response.StatusCode, Is.EqualTo(200));
+        Assert.That(simpleResponse.Status, Is.EqualTo("Success"));
+    }
+    
+    [Test]
+    public void TestHandleBanRequestGroupGuests()
+    {
+        PrepareValidConfiguration();
+        this._testResources.Configuration.Domains![0].GroupIdRankChecks = new List<long>()
+        {
+            1788L,
+        };
+        this._testResources.TestHttpClient.SetResponse("https://groups.roblox.com/v2/users/12345/groups/roles", HttpStatusCode.OK, "{\"data\":[]}");
+        this._testResources.TestHttpClient.SetResponse("https://groups.roblox.com/v2/users/23456/groups/roles", HttpStatusCode.OK, "{\"data\":[]}");
+
+        var response = this._banController.HandleBanRequest(GetContext(this.PrepareValidResponse())).Result;
+        var simpleResponse = response.Response;
+        Assert.That(response.StatusCode, Is.EqualTo(200));
+        Assert.That(simpleResponse.Status, Is.EqualTo("Success"));
     }
 
     [Test]

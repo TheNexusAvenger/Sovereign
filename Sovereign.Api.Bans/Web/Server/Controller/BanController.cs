@@ -175,6 +175,25 @@ public class BanController
             return authorizationError;
         }
         
+        // Verify that the user is not banning a user at or above their group level.
+        // Ideally, at least the banning user should be cached in the authorization check.
+        if (domainData.GroupIdRankChecks != null)
+        {
+            var robloxGroupClient = this.ControllerResources.GetRobloxGroupClient();
+            foreach (var groupId in domainData.GroupIdRankChecks)
+            {
+                var banningUserRank = await robloxGroupClient.GetRankInGroupAsync(actingRobloxId, groupId);
+                foreach (var targetRobloxId in request.Action!.UserIds!)
+                {
+                    var targetUserRank = await robloxGroupClient.GetRankInGroupAsync(targetRobloxId, groupId);
+                    if (banningUserRank <= 0 && targetUserRank <= 0) continue;
+                    if (banningUserRank > targetUserRank) continue;
+                    Logger.Info($"Ignoring request to POST /bans/ban in domain {domain} due to {actingRobloxId} ({banningUserRank}) being above or the same rank as {targetRobloxId} ({targetUserRank}) in group {groupId}.");
+                    return new JsonResponse(new SimpleResponse("GroupRankPermissionError"), 403);
+                }
+            }
+        }
+        
         // Add the actions. Ignore unban requests for non-banned users.
         var bannedRobloxIds = new List<long>();
         var unbannedRobloxIds = new List<long>();

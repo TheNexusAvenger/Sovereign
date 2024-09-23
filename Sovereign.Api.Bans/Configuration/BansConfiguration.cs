@@ -42,6 +42,12 @@ public class DomainConfiguration
     /// Rules to authenticate users.
     /// </summary>
     public List<AuthenticationRuleEntry>? Rules { get; set; }
+    
+    /// <summary>
+    /// Optional list of group id ranks to compare when a banning a user.
+    /// This is meant to prevent banning users with higher ranks.
+    /// </summary>
+    public List<long>? GroupIdRankChecks { get; set; }
 
     /// <summary>
     /// Verifies that a Roblox user passes the rules for the domain.
@@ -98,6 +104,10 @@ public class BansConfiguration : BaseConfiguration
             {
                 new DomainConfiguration() {
                     Name = "MyGame",
+                    GroupIdRankChecks = new List<long>()
+                    {
+                        12345L,
+                    },
                     Rules = new List<AuthenticationRuleEntry>()
                     {
                         new AuthenticationRuleEntry()
