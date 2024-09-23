@@ -1,6 +1,7 @@
 ﻿using System.Linq;
 using Microsoft.EntityFrameworkCore;
 using Sovereign.Core.Database.Model.Api;
+using Sovereign.Core.Database.Model.Api.Compiled;
 
 namespace Sovereign.Core.Database;
 
@@ -24,6 +25,14 @@ public class BansContext : BaseContext
     public BansContext(string? filePath = null, DatabaseConnectMode connectMode = DatabaseConnectMode.ReadWriteCreate) : base("Bans", filePath, connectMode)
     {
         
+    }
+    
+    /// <summary>
+    /// Configures the database.
+    /// </summary>
+    protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
+    {
+        base.OnConfiguring(optionsBuilder.UseModel(BansContextModel.Instance));
     }
 
     /// <summary>

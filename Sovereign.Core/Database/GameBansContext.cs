@@ -1,5 +1,6 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using Sovereign.Core.Database.Model.Bans;
+using Sovereign.Core.Database.Model.Bans.Compiled;
 
 namespace Sovereign.Core.Database;
 
@@ -17,5 +18,13 @@ public class GameBansContext : BaseContext
     public GameBansContext(string? filePath = null) : base("GameBans", filePath)
     {
         
+    }
+    
+    /// <summary>
+    /// Configures the database.
+    /// </summary>
+    protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
+    {
+        base.OnConfiguring(optionsBuilder.UseModel(GameBansContextModel.Instance));
     }
 }
