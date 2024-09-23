@@ -32,7 +32,7 @@ public class BansWebServer : WebServer
             {
                 var healthCheckResult = healthCheckState.GetHealthCheckResult();
                 var statusCode = (healthCheckResult.Status == HealthCheckResultStatus.Up ? 200 : 503);
-                var response = Results.Json(healthCheckResult, statusCode: statusCode, jsonTypeInfo: BansHealthCheckResultJsonContext.Default.HealthCheckResultStatus);
+                var response = Results.Json(healthCheckResult, statusCode: statusCode, jsonTypeInfo: BansHealthCheckResultJsonContext.Default.BansHealthCheckResult);
                 await response.ExecuteAsync(httpContext);
             });
             
