@@ -1,0 +1,2 @@
+﻿### Healthcheck endpoint [200]
+GET {{host}}/health/
