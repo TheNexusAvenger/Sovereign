@@ -91,7 +91,7 @@ public class BaseContext : DbContext
         await using var transaction = await this.Database.BeginTransactionAsync();
         try
         {
-            await this.Database.SqlQuery<string>(FormattableStringFactory.Create(CheckMigrationHistorySql)).ToListAsync();
+            await this.Database.ExecuteSqlAsync(FormattableStringFactory.Create(CheckMigrationHistorySql));
         }
         catch (Exception)
         {
@@ -119,7 +119,7 @@ public class BaseContext : DbContext
             await using var migrateStream = assembly.GetManifestResourceStream(resourceName);
             using var migrateStreamReader = new StreamReader(migrateStream!);
             await this.Database.ExecuteSqlAsync(FormattableStringFactory.Create(await migrateStreamReader.ReadToEndAsync()));
-            await this.Database.ExecuteSqlAsync(FormattableStringFactory.Create(MigrationAppliedSql, new object[] {migrateName, "test"}));
+            await this.Database.ExecuteSqlAsync(FormattableStringFactory.Create(MigrationAppliedSql, new object[] {migrateName, "Sovereign"}));
         }
         
         // Commit the schema changes.
