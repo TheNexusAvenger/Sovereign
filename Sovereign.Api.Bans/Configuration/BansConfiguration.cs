@@ -108,17 +108,24 @@ public class BansConfiguration : BaseConfiguration
                     {
                         12345L,
                     },
+                    ApiKeys = new List<string>() { "TestApiKey" },
                     Rules = new List<AuthenticationRuleEntry>()
                     {
                         new AuthenticationRuleEntry()
                         {
                             Name = "Test Rule 1",
-                            Rule = "not GroupRankIs(12345, \"EqualTo\", 230)",
-                            Action = AuthenticationRuleAction.Deny,
+                            Rule = "IsUser(12345)",
+                            Action = AuthenticationRuleAction.Allow,
                         },
                         new AuthenticationRuleEntry()
                         {
                             Name = "Test Rule 2",
+                            Rule = "GroupRankIs(12345, \"EqualTo\", 230)",
+                            Action = AuthenticationRuleAction.Deny,
+                        },
+                        new AuthenticationRuleEntry()
+                        {
+                            Name = "Test Rule 3",
                             Rule = "not GroupRankIs(12345, \"LessThan\", 200)",
                             Action = AuthenticationRuleAction.Allow,
                         },

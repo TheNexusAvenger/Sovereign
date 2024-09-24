@@ -1,0 +1,249 @@
+﻿### Healthcheck endpoint [200]
+GET {{host}}/health/
+
+
+
+
+
+### Create account link: malformed JSON [400]
+POST {{host}}/accounts/link
+
+{
+
+### Create account link: validation error [400]
+POST {{host}}/accounts/link
+
+{}
+
+### Create account link: invalid domain [401]
+POST {{host}}/accounts/link
+Authorization: ApiKey {{apiKey}}
+
+{
+    "domain": "UnknownDomain",
+    "robloxUserId": {{actingUserId}},
+    "linkMethod": "TestLinkMethod",
+    "linkData": "TestLinkData"
+}
+
+### Create account link: invalid header for domain [401]
+POST {{host}}/accounts/link
+Authorization: ApiKey InvalidApiKey
+
+{
+    "domain": "{{domain}}",
+    "robloxUserId": {{actingUserId}},
+    "linkMethod": "TestLinkMethod",
+    "linkData": "TestLinkData"
+}
+
+### Create account link: unauthorized user (new links only; unauthorized users can update) [403]
+POST {{host}}/accounts/link
+Authorization: ApiKey {{apiKey}}
+
+{
+    "domain": "{{domain}}",
+    "robloxUserId": 23456,
+    "linkMethod": "TestLinkMethod",
+    "linkData": "TestLinkData"
+}
+
+### Create account link: create/update account link [200]
+POST {{host}}/accounts/link
+Authorization: ApiKey {{apiKey}}
+
+{
+    "domain": "{{domain}}",
+    "robloxUserId": {{actingUserId}},
+    "linkMethod": "TestLinkMethod",
+    "linkData": "TestLinkData"
+}
+
+
+
+
+
+### Create ban: malformed JSON [400]
+POST {{host}}/bans/ban/
+
+{
+
+### Create ban: validation error [400]
+POST {{host}}/bans/ban/
+
+{}
+
+### Create ban: invalid domain [401]
+POST {{host}}/bans/ban/
+Authorization: ApiKey {{apiKey}}
+
+{
+    "domain": "UnknownDomain",
+    "authentication": {
+        "method": "Roblox",
+        "data": "{{actingUserId}}"
+    },
+    "action": {
+        "type": "Ban",
+        "userIds": [{{bannedUserId}}],
+        "excludeAltAccounts": true
+    },
+    "reason": {
+        "display": "Test Display Reason",
+        "private": "Test Private Reason"
+    }
+}
+
+### Create ban: invalid header for domain [401]
+POST {{host}}/bans/ban/
+Authorization: ApiKey InvalidApiKey
+
+{
+    "domain": "{{domain}}",
+    "authentication": {
+        "method": "Roblox",
+        "data": "{{actingUserId}}"
+    },
+    "action": {
+        "type": "Ban",
+        "userIds": [{{bannedUserId}}],
+        "excludeAltAccounts": true
+    },
+    "reason": {
+        "display": "Test Display Reason",
+        "private": "Test Private Reason"
+    }
+}
+
+### Create ban: invalid link data [401]
+POST {{host}}/bans/ban/
+Authorization: ApiKey {{apiKey}}
+
+{
+    "domain": "{{domain}}",
+    "authentication": {
+        "method": "UnknownLinkMethod",
+        "data": "UnknownLinkData"
+    },
+    "action": {
+        "type": "Ban",
+        "userIds": [{{bannedUserId}}],
+        "excludeAltAccounts": true
+    },
+    "reason": {
+        "display": "Test Display Reason",
+        "private": "Test Private Reason"
+    }
+}
+
+### Create ban: forbidden user [403]
+POST {{host}}/bans/ban/
+Authorization: ApiKey {{apiKey}}
+
+{
+    "domain": "{{domain}}",
+    "authentication": {
+        "method": "Roblox",
+        "data": "23456"
+    },
+    "action": {
+        "type": "Ban",
+        "userIds": [{{bannedUserId}}],
+        "excludeAltAccounts": true
+    },
+    "reason": {
+        "display": "Test Display Reason",
+        "private": "Test Private Reason"
+    }
+}
+
+### Create ban: permanent ban with Roblox user id verification [200]
+POST {{host}}/bans/ban/
+Authorization: ApiKey {{apiKey}}
+
+{
+    "domain": "{{domain}}",
+    "authentication": {
+        "method": "Roblox",
+        "data": "{{actingUserId}}"
+    },
+    "action": {
+        "type": "Ban",
+        "userIds": [{{bannedUserId}}],
+        "excludeAltAccounts": true
+    },
+    "reason": {
+        "display": "Test Display Reason",
+        "private": "Test Private Reason"
+    }
+}
+
+### Create ban: temporary ban [200]
+POST {{host}}/bans/ban/
+Authorization: ApiKey {{apiKey}}
+
+{
+    "domain": "{{domain}}",
+    "authentication": {
+        "method": "Roblox",
+        "data": "{{actingUserId}}"
+    },
+    "action": {
+        "type": "Ban",
+        "userIds": [{{bannedUserId}}],
+        "excludeAltAccounts": true,
+        "duration": 60
+    },
+    "reason": {
+        "display": "Test Display Reason",
+        "private": "Test Private Reason"
+    }
+}
+
+### Create ban: unban [200]
+POST {{host}}/bans/ban/
+Authorization: ApiKey {{apiKey}}
+
+{
+    "domain": "{{domain}}",
+    "authentication": {
+        "method": "Roblox",
+        "data": "{{actingUserId}}"
+    },
+    "action": {
+        "type": "Unban",
+        "userIds": [{{bannedUserId}}],
+        "excludeAltAccounts": true
+    },
+    "reason": {
+        "display": "Test Display Reason",
+        "private": "Test Private Reason"
+    }
+}
+
+
+
+
+
+### List bans: validation error [400]
+GET {{host}}/bans/list/
+
+### List bans: invalid domain [401]
+GET {{host}}/bans/list/?domain=UnknownDomain&robloxUserId=23456
+Authorization: ApiKey {{apiKey}}
+
+### List bans: invalid header for domain [401]
+GET {{host}}/bans/list/?domain={{domain}}&robloxUserId=23456
+Authorization: ApiKey InvalidApiKey
+
+### List bans: most recent ban [200]
+GET {{host}}/bans/list/?domain={{domain}}&robloxUserId=23456&max=1
+Authorization: ApiKey {{apiKey}}
+
+### List bans: earlier bans [200]
+GET {{host}}/bans/list/?domain={{domain}}&robloxUserId=23456&max=5&start=1
+Authorization: ApiKey {{apiKey}}
+
+### List bans: no bans [200]
+GET {{host}}/bans/list/?domain={{domain}}&robloxUserId=34567
+Authorization: ApiKey {{apiKey}}
