@@ -11,6 +11,7 @@ RUN dotnet build ${APP_NAME} -c release -r linux-musl-x64 --self-contained -o /p
 
 # Switch to a container for runtime.
 FROM mcr.microsoft.com/dotnet/aspnet:8.0-alpine as runtime
+ARG APP_NAME
 
 # Prepare the runtime.
 WORKDIR /app
