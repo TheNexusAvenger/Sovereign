@@ -22,7 +22,7 @@ public class AuthenticationRuleEntry : BaseRuleEntry<AuthenticationRuleAction>
     /// <summary>
     /// Action to perform when the rule applies.
     /// </summary>
-    [JsonConverter(typeof(JsonStringEnumConverter<JoinRequestAction>))]
+    [JsonConverter(typeof(JsonStringEnumConverter<AuthenticationRuleAction>))]
     public override AuthenticationRuleAction? Action { get; set; }
 }
 
