@@ -4,9 +4,9 @@ ARG PORT
 
 # Copy the application files and build them.
 WORKDIR /build
-COPY Bouncer/* Bouncer/
-COPY Sovereign.Core/* Sovereign.Core/
-COPY ${APP_NAME}/* ${APP_NAME}/
+COPY Bouncer/ Bouncer/
+COPY Sovereign.Core/ Sovereign.Core/
+COPY ${APP_NAME}/ ${APP_NAME}/
 RUN dotnet build ${APP_NAME} -c release -r linux-musl-x64 --self-contained -o /publish
 
 # Switch to a container for runtime.
