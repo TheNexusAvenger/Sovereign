@@ -203,6 +203,7 @@ public class BanController
         // Add the actions. Ignore unban requests for non-banned users.
         var bannedRobloxIds = new List<long>();
         var unbannedRobloxIds = new List<long>();
+        var addedBanEntries = new List<BanEntry>();
         var currentTime = DateTime.Now;
         var banDomain = domainData.Name!;
         foreach (var targetRobloxId in request.Action!.UserIds!)
@@ -231,7 +232,8 @@ public class BanController
                 {
                     endTime = currentTime.AddSeconds(request.Action!.Duration.Value);
                 }
-                bansContext.BanEntries.Add(new BanEntry()
+
+                var banEntry = new BanEntry()
                 {
                     TargetRobloxUserId = targetRobloxId,
                     Domain = banDomain,
@@ -242,13 +244,16 @@ public class BanController
                     ActingRobloxUserId = actingRobloxId,
                     DisplayReason = request.Reason!.Display!,
                     PrivateReason = request.Reason!.Private!,
-                });
+                };
+                addedBanEntries.Add(banEntry);
+                bansContext.BanEntries.Add(banEntry);
                 bannedRobloxIds.Add(targetRobloxId);
             }
             else if (request.Action!.Type == BanAction.Unban)
             {
                 Logger.Info($"Unbanning user {targetRobloxId} in domain \"{banDomain}\" on behalf of {actingRobloxId}.");
-                bansContext.BanEntries.Add(new BanEntry()
+
+                var banEntry = new BanEntry()
                 {
                     TargetRobloxUserId = targetRobloxId,
                     Domain = banDomain,
@@ -258,7 +263,9 @@ public class BanController
                     ActingRobloxUserId = actingRobloxId,
                     DisplayReason = request.Reason!.Display!,
                     PrivateReason = request.Reason!.Private!,
-                });
+                };
+                addedBanEntries.Add(banEntry);
+                bansContext.BanEntries.Add(banEntry);
                 unbannedRobloxIds.Add(targetRobloxId);
             }
         }
@@ -273,9 +280,7 @@ public class BanController
             if (internalWebhookSecretKey != null)
             {
                 // Prepare the webhook data.
-                var banIds = new List<long>();
-                banIds.AddRange(bannedRobloxIds);
-                banIds.AddRange(unbannedRobloxIds);
+                var banIds = addedBanEntries.Select(entry => entry.Id).ToList();
                 var webhookBody = new SovereignWebhookRequest()
                 {
                     Domain = domainData.Name!,

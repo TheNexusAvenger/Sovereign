@@ -100,7 +100,7 @@ public class GameBanLoopCollection : GenericLoopCollection<GameBanLoop, GamesCon
         var domain = request.Domain!;
         var loops = this.ActiveLoops.Values.Where(loop =>
             string.Equals(loop.Configuration.Domain!, domain, StringComparison.CurrentCultureIgnoreCase)).ToList();
-        Logger.Info($"Handling {bansToHandle.Count} for domain {domain} in {loops.Count} games.");
+        Logger.Info($"Handling {bansToHandle.Count} webhook bans for domain {domain} in {loops.Count} games.");
         foreach (var loop in loops)
         {
             foreach (var banEntry in bansToHandle)
