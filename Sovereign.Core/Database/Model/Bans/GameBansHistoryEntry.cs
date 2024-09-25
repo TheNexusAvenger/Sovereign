@@ -10,12 +10,12 @@ public class GameBansHistoryEntry
     /// </summary>
     [Key]
     public long Id { get; set; }
-    
+
     /// <summary>
     /// Domain the ban was handled for.
     /// </summary>
     [Required]
-    public string Domain { get; set; }
+    public string Domain { get; set; } = null!;
     
     /// <summary>
     /// Game id the ban was handled for.
