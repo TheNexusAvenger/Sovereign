@@ -18,5 +18,5 @@ COPY --from=build /publish .
 RUN apk add wget icu-libs
 ENV DOTNET_SYSTEM_GLOBALIZATION_INVARIANT=false
 RUN ln -s ${APP_NAME}.dll app.dll
-EXPOSE ${PORt}
+EXPOSE ${PORT}
 ENTRYPOINT ["dotnet", "/app/app.dll"]
