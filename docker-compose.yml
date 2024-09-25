@@ -1,0 +1,60 @@
+services:
+  sovereign-api-bans:
+    container_name: SovereignApiBans
+    build:
+      context: .
+      dockerfile: ./Dockerfile
+      args:
+        - APP_NAME=Sovereign.Api.Bans
+        - PORT=8000
+    environments:
+      - CONFIGURATION_FILE_LOCATION=/configurations/api.bans.json
+      - DATABASE_DIRECTORY_LOCATION=/data/
+      - INTERNAL_WEBHOOK_ENDPOINTS=http://sovereign-bans-games:9000/sovereign/webhook
+      # INTERNAL_WEBHOOK_ENDPOINTS should be overriden in a docker-compose.override.yml.
+      - INTERNAL_WEBHOOK_ENDPOINTS=DEFAULT_WEBHOOK_SECRET
+    restart: always
+    networks:
+      - sovereign
+    healthcheck:
+      test: ["CMD", "wget", "--content-on-error", "-qO-", "http://localhost:8000/health"]
+      interval: 2m
+      timeout: 10s
+      retries: 3
+      start_period: 10s
+    volumes:
+      - ./configurations:/configurations/
+      - ./persistence:/data/
+    # Ports are not exposed by default.
+    # Use docker-compose.override.yml to expose port 8000 if needed. It is not required for the Discord bot.
+  
+  sovereign-bans-games:
+    container_name: SovereignBansGames
+    build:
+      context: .
+      dockerfile: ./Dockerfile
+      args:
+        - APP_NAME=Sovereign.Bans.Games
+        - PORT=9000
+    environments:
+      - CONFIGURATION_FILE_LOCATION=/configurations/bans.games.json
+      - DATABASE_DIRECTORY_LOCATION=/data/
+      # INTERNAL_WEBHOOK_ENDPOINTS should be overriden in a docker-compose.override.yml.
+      - INTERNAL_WEBHOOK_ENDPOINTS=DEFAULT_WEBHOOK_SECRET
+    restart: always
+    networks:
+      - sovereign
+    depends_on:
+      - sovereign-api-bans
+    healthcheck:
+      test: ["CMD", "wget", "--content-on-error", "-qO-", "http://localhost:9000/health"]
+      interval: 2m
+      timeout: 10s
+      retries: 3
+      start_period: 10s
+    volumes:
+      - ./configurations:/configurations/
+      - ./persistence:/data/
+
+networks:
+  sovereign:
