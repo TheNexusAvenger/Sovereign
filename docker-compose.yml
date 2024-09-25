@@ -7,7 +7,7 @@ services:
       args:
         - APP_NAME=Sovereign.Api.Bans
         - PORT=8000
-    environments:
+    environment:
       - CONFIGURATION_FILE_LOCATION=/configurations/api.bans.json
       - DATABASE_DIRECTORY_LOCATION=/data/
       - INTERNAL_WEBHOOK_ENDPOINTS=http://sovereign-bans-games:9000/sovereign/webhook
@@ -36,7 +36,7 @@ services:
       args:
         - APP_NAME=Sovereign.Bans.Games
         - PORT=9000
-    environments:
+    environment:
       - CONFIGURATION_FILE_LOCATION=/configurations/bans.games.json
       - DATABASE_DIRECTORY_LOCATION=/data/
       # INTERNAL_WEBHOOK_ENDPOINTS should be overriden in a docker-compose.override.yml.
