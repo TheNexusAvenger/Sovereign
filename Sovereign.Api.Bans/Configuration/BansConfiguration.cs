@@ -131,7 +131,7 @@ public class BansConfiguration : BaseConfiguration
                         new AuthenticationRuleEntry()
                         {
                             Name = "Test Rule 3",
-                            Rule = "not GroupRankIs(12345, \"LessThan\", 200)",
+                            Rule = "GroupRankIs(12345, \"AtLeast\", 200)",
                             Action = AuthenticationRuleAction.Allow,
                         },
                     },
