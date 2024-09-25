@@ -8,7 +8,7 @@ public class BansHealthCheckResult
     /// <summary>
     /// Status of the combined health check.
     /// </summary>
-    [JsonConverter(typeof(JsonStringEnumConverter))]
+    [JsonConverter(typeof(JsonStringEnumConverter<HealthCheckResultStatus>))]
     [JsonPropertyName("status")]
     public HealthCheckResultStatus Status { get; set; } = HealthCheckResultStatus.Up;
 

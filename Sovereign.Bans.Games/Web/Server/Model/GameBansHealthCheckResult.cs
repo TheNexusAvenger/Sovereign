@@ -11,7 +11,7 @@ public class GameBansGameLoopHealthCheckResult
     /// <summary>
     /// Status of the game ban loop.
     /// </summary>
-    [JsonConverter(typeof(JsonStringEnumConverter))]
+    [JsonConverter(typeof(JsonStringEnumConverter<HealthCheckResultStatus>))]
     [JsonPropertyName("status")]
     public HealthCheckResultStatus Status { get; set; } = HealthCheckResultStatus.Up;
     
@@ -30,7 +30,7 @@ public class GameBansGameLoopHealthCheckResult
     /// <summary>
     /// Status of the last step of the game ban loop.
     /// </summary>
-    [JsonConverter(typeof(JsonStringEnumConverter))]
+    [JsonConverter(typeof(JsonStringEnumConverter<GameBanLoopStatus>))]
     [JsonPropertyName("lastStepStatus")]
     public GameBanLoopStatus LastStepStatus { get; set; } = GameBanLoopStatus.NotStarted;
 }
@@ -40,7 +40,7 @@ public class GameBansHealthCheckResult
     /// <summary>
     /// Status of the combined health check.
     /// </summary>
-    [JsonConverter(typeof(JsonStringEnumConverter))]
+    [JsonConverter(typeof(JsonStringEnumConverter<HealthCheckResultStatus>))]
     [JsonPropertyName("status")]
     public HealthCheckResultStatus Status { get; set; } = HealthCheckResultStatus.Up;
 

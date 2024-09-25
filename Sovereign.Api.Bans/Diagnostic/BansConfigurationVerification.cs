@@ -5,7 +5,7 @@ using Sovereign.Api.Bans.Configuration;
 
 namespace Sovereign.Api.Bans.Diagnostic;
 
-public class BansConfigurationVerification : BaseConfigurationVerification<AuthenticationRuleAction?>
+public class BansConfigurationVerification : BaseConfigurationVerification<AuthenticationRuleAction>
 {
     /// <summary>
     /// Verifies the rules for the groups.

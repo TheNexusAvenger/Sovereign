@@ -17,7 +17,7 @@ public enum AuthenticationRuleAction
     Deny
 }
 
-public class AuthenticationRuleEntry : BaseRuleEntry<AuthenticationRuleAction?>
+public class AuthenticationRuleEntry : BaseRuleEntry<AuthenticationRuleAction>
 {
 }
 

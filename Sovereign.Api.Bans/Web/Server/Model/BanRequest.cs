@@ -25,7 +25,7 @@ public class BanRequestAction
     /// <summary>
     /// Type of the action to perform.
     /// </summary>
-    [JsonConverter(typeof(JsonStringEnumConverter))]
+    [JsonConverter(typeof(JsonStringEnumConverter<BanAction>))]
     [JsonPropertyName("type")]
     public BanAction? Type { get; set; }
     
