@@ -19,6 +19,11 @@ public enum AuthenticationRuleAction
 
 public class AuthenticationRuleEntry : BaseRuleEntry<AuthenticationRuleAction>
 {
+    /// <summary>
+    /// Action to perform when the rule applies.
+    /// </summary>
+    [JsonConverter(typeof(JsonStringEnumConverter<JoinRequestAction>))]
+    public override AuthenticationRuleAction? Action { get; set; }
 }
 
 public class DomainConfiguration
