@@ -1,6 +1,11 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Net.Http;
+using System.Net.Http.Json;
+using System.Security.Cryptography;
+using System.Text;
+using System.Text.Json;
 using System.Threading.Tasks;
 using Bouncer.Diagnostic;
 using Microsoft.EntityFrameworkCore;
@@ -10,6 +15,7 @@ using Sovereign.Core.Database.Model.Api;
 using Sovereign.Core.Model;
 using Sovereign.Core.Model.Request.Authorization;
 using Sovereign.Core.Model.Response;
+using Sovereign.Core.Web.Server.Request;
 
 namespace Sovereign.Api.Bans.Web.Server.Controller;
 
@@ -257,6 +263,74 @@ public class BanController
             }
         }
         await bansContext.SaveChangesAsync();
+        
+        // Send the webhooks for quicker responses.
+        var webhookEndpoints = Environment.GetEnvironmentVariable("INTERNAL_WEBHOOK_ENDPOINTS");
+        if (webhookEndpoints != null)
+        {
+            // Get the webhook secret.
+            var internalWebhookSecretKey = Environment.GetEnvironmentVariable("INTERNAL_WEBHOOK_SECRET_KEY");
+            if (internalWebhookSecretKey != null)
+            {
+                // Prepare the webhook data.
+                var banIds = new List<long>();
+                banIds.AddRange(bannedRobloxIds);
+                banIds.AddRange(unbannedRobloxIds);
+                var webhookBody = new SovereignWebhookRequest()
+                {
+                    Domain = domainData.Name!,
+                    Ids = banIds,
+                };
+                var webhookContents = JsonSerializer.Serialize(webhookBody, SovereignWebhookRequestJsonContext.Default.SovereignWebhookRequest);
+
+                // Prepare the webhook signature.
+                using var sha256 = new HMACSHA256(Encoding.UTF8.GetBytes(internalWebhookSecretKey));
+                var signature = Convert.ToBase64String(sha256.ComputeHash(Encoding.UTF8.GetBytes(webhookContents)));
+                var authorizationHeader = $"Signature {signature}";
+                
+                // Send the webhooks.
+                foreach (var endpoint in webhookEndpoints.Split(","))
+                {
+                    Logger.Debug($"Sending ban webhook to {endpoint}.");
+                    var _ = Task.Run(async () =>
+                    {
+                        try
+                        {
+                            // Create and send the request.
+                            var httpClient = new HttpClient();
+                            var webhookRequest = new HttpRequestMessage()
+                            {
+                                RequestUri = new Uri(endpoint),
+                                Headers =
+                                {
+                                    {"Authorization", authorizationHeader},
+                                },
+                                Method = HttpMethod.Post,
+                                Content = JsonContent.Create(webhookBody, SovereignWebhookRequestJsonContext.Default.SovereignWebhookRequest),
+                            };
+                            var response = await httpClient.SendAsync(webhookRequest);
+                            if (response.IsSuccessStatusCode)
+                            {
+                                Logger.Debug($"Webhook {endpoint} completed with HTTP {response.StatusCode}.");
+                            }
+                            else
+                            {
+                                Logger.Error($"Webhook {endpoint} completed with HTTP {response.StatusCode}.");
+                            }
+                        }
+                        catch (Exception e)
+                        {
+                            Logger.Error($"Error sending webhook to {endpoint}.\n{e}");
+                        }
+                    });
+                }
+            }
+            else
+            {
+                // Log if there is no secret.
+                Logger.Warn("INTERNAL_WEBHOOK_SECRET_KEY is unset. Webhooks can't be authenticated.");
+            }
+        }
         
         // Return the banned and unbanned users.
         return new JsonResponse(new BanResponse()

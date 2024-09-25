@@ -23,7 +23,7 @@ public class BansWebServer : WebServer
         {
             // Add the JSON serializers.
             builder.Services.ConfigureHttpJsonOptions(options => {
-                options.SerializerOptions.TypeInfoResolverChain.Insert(0, BansHealthCheckResultJsonContext.Default);
+                options.SerializerOptions.TypeInfoResolverChain.Add(BansHealthCheckResultJsonContext.Default);
             });
         }, (app) =>
         {

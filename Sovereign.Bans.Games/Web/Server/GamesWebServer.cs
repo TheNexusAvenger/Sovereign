@@ -6,6 +6,8 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.DependencyInjection;
 using Sovereign.Bans.Games.Loop;
 using Sovereign.Bans.Games.Web.Server.Model;
+using Sovereign.Core.Extension;
+using Sovereign.Core.Web.Client.Request;
 
 namespace Sovereign.Bans.Games.Web.Server;
 
@@ -29,7 +31,8 @@ public class GamesWebServer : WebServer
         {
             // Add the JSON serializers.
             builder.Services.ConfigureHttpJsonOptions(options => {
-                options.SerializerOptions.TypeInfoResolverChain.Insert(0, GameBansHealthCheckResultJsonContext.Default);
+                options.SerializerOptions.TypeInfoResolverChain.Add(GameBansHealthCheckResultJsonContext.Default);
+                options.SerializerOptions.TypeInfoResolverChain.Add(UserRestrictionRequestJsonContext.Default);
             });
         }, (app) =>
         {
@@ -41,6 +44,10 @@ public class GamesWebServer : WebServer
                 var response = Results.Json(healthCheckResult, statusCode: statusCode, jsonTypeInfo: GameBansHealthCheckResultJsonContext.Default.GameBansHealthCheckResult);
                 await response.ExecuteAsync(httpContext);
             });
+            
+            // Add the webhook endpoint.
+            app.MapInternalWebhook(async (request, _) =>
+                await gameBanLoopCollection.HandleWebhookAsync(request));
         });
     }
 }
