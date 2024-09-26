@@ -95,9 +95,27 @@ public class SovereignBansApiClient
         return JsonSerializer.Deserialize<TResponse>(response.Content, jsonResponseTypeInfo)!;
     }
 
-    public async Task<BanPermissionResponse> GetPermissionsAsync(string domain, ulong discordId)
+    /// <summary>
+    /// Returns the ban permissions for a Roblox user.
+    /// </summary>
+    /// <param name="domain">Domain of the bans to get the permissions for.</param>
+    /// <param name="robloxUserId">Roblox user id to check the permissions for.</param>
+    /// <returns>Response for the ban permissions.</returns>
+    public async Task<BanPermissionResponse> GetPermissionsForRobloxUserAsync(string domain, long robloxUserId)
     {
-        var query = $"?domain={domain}&linkMethod=Discord&linkData={discordId}";
+        var query = $"?domain={domain}&linkMethod=Roblox&linkData={robloxUserId}";
+        return await this.GetAsync(domain, "/bans/permissions/", query, BanPermissionResponseJsonContext.Default.BanPermissionResponse);
+    }
+
+    /// <summary>
+    /// Returns the ban permissions for a Discord user.
+    /// </summary>
+    /// <param name="domain">Domain of the bans to get the permissions for.</param>
+    /// <param name="discordUserId">Discord useer id to check the permissions for.</param>
+    /// <returns>Response for the ban permissions.</returns>
+    public async Task<BanPermissionResponse> GetPermissionsForDiscordUserAsync(string domain, ulong discordUserId)
+    {
+        var query = $"?domain={domain}&linkMethod=Discord&linkData={discordUserId}";
         return await this.GetAsync(domain, "/bans/permissions/", query, BanPermissionResponseJsonContext.Default.BanPermissionResponse);
     }
 }

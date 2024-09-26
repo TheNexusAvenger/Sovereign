@@ -54,10 +54,20 @@ public class SovereignBansApiClientTest
     }
 
     [Test]
-    public void TestGetPermissionsAsync()
+    public void TestGetPermissionsForRobloxUserAsync()
+    {
+        this._testHttpClient.SetResponse("http://localhost:8000/bans/permissions/?domain=TestDomain&linkMethod=Roblox&linkData=12345", HttpStatusCode.OK, "{\"status\":\"Success\",\"canBan\":false,\"banPermissionIssue\":\"Forbidden\"}");
+        var response = this._client.GetPermissionsForRobloxUserAsync("TestDomain", 12345L).Result;
+        Assert.That(response.Status, Is.EqualTo(ResponseStatus.Success));
+        Assert.That(response.BanPermissionIssue, Is.EqualTo(BanPermissionIssue.Forbidden));
+        Assert.That(response.CanBan, Is.False);
+    }
+
+    [Test]
+    public void TestGetPermissionsForDiscordUserAsync()
     {
         this._testHttpClient.SetResponse("http://localhost:8000/bans/permissions/?domain=TestDomain&linkMethod=Discord&linkData=12345", HttpStatusCode.OK, "{\"status\":\"Success\",\"canBan\":false,\"banPermissionIssue\":\"Forbidden\"}");
-        var response = this._client.GetPermissionsAsync("TestDomain", 12345L).Result;
+        var response = this._client.GetPermissionsForDiscordUserAsync("TestDomain", 12345L).Result;
         Assert.That(response.Status, Is.EqualTo(ResponseStatus.Success));
         Assert.That(response.BanPermissionIssue, Is.EqualTo(BanPermissionIssue.Forbidden));
         Assert.That(response.CanBan, Is.False);
