@@ -10,7 +10,7 @@ services:
     environment:
       - CONFIGURATION_FILE_LOCATION=/configurations/api.bans.json
       - DATABASE_DIRECTORY_LOCATION=/data/
-      - INTERNAL_WEBHOOK_ENDPOINTS=http://sovereign-bans-games:9000/sovereign/webhook
+      - INTERNAL_WEBHOOK_ENDPOINTS=http://sovereign-bans-games:9000/sovereign/webhook,http://sovereign-bans-join-requests:9001/sovereign/webhook
       # INTERNAL_WEBHOOK_ENDPOINTS should be overriden in a docker-compose.override.yml.
       - INTERNAL_WEBHOOK_ENDPOINTS=DEFAULT_WEBHOOK_SECRET
     restart: always
@@ -48,6 +48,34 @@ services:
       - sovereign-api-bans
     healthcheck:
       test: ["CMD", "wget", "--content-on-error", "-qO-", "http://localhost:9000/health"]
+      interval: 2m
+      timeout: 10s
+      retries: 3
+      start_period: 10s
+    volumes:
+      - ./configurations:/configurations/
+      - ./persistence:/data/
+  
+  sovereign-bans-join-requests:
+    container_name: SovereignBansJoinRequests
+    build:
+      context: .
+      dockerfile: ./Dockerfile
+      args:
+        - APP_NAME=Sovereign.Bans.JoinRequests
+        - PORT=9000
+    environment:
+      - CONFIGURATION_FILE_LOCATION=/configurations/bans.joinrequests.json
+      - DATABASE_DIRECTORY_LOCATION=/data/
+      # INTERNAL_WEBHOOK_ENDPOINTS should be overriden in a docker-compose.override.yml.
+      - INTERNAL_WEBHOOK_ENDPOINTS=DEFAULT_WEBHOOK_SECRET
+    restart: always
+    networks:
+      - sovereign
+    depends_on:
+      - sovereign-api-bans
+    healthcheck:
+      test: ["CMD", "wget", "--content-on-error", "-qO-", "http://localhost:9001/health"]
       interval: 2m
       timeout: 10s
       retries: 3

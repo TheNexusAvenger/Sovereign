@@ -16,6 +16,10 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Sovereign.Bans.Games.Test",
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Bouncer.Test", "Bouncer\Bouncer.Test\Bouncer.Test.csproj", "{6ADE50DD-115C-405B-B20B-AAAD5833F8DE}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Sovereign.Bans.JoinRequests", "Sovereign.Bans.JoinRequests\Sovereign.Bans.JoinRequests.csproj", "{82936CA4-4203-4BCB-BE97-24DB7AC8D186}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Sovereign.Bans.JoinRequests.Test", "Sovereign.Bans.JoinRequests.Test\Sovereign.Bans.JoinRequests.Test.csproj", "{DFDEA039-0971-4A3F-8A6B-A1F5FFB9D429}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -54,5 +58,13 @@ Global
 		{6ADE50DD-115C-405B-B20B-AAAD5833F8DE}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{6ADE50DD-115C-405B-B20B-AAAD5833F8DE}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{6ADE50DD-115C-405B-B20B-AAAD5833F8DE}.Release|Any CPU.Build.0 = Release|Any CPU
+		{82936CA4-4203-4BCB-BE97-24DB7AC8D186}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{82936CA4-4203-4BCB-BE97-24DB7AC8D186}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{82936CA4-4203-4BCB-BE97-24DB7AC8D186}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{82936CA4-4203-4BCB-BE97-24DB7AC8D186}.Release|Any CPU.Build.0 = Release|Any CPU
+		{DFDEA039-0971-4A3F-8A6B-A1F5FFB9D429}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{DFDEA039-0971-4A3F-8A6B-A1F5FFB9D429}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{DFDEA039-0971-4A3F-8A6B-A1F5FFB9D429}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{DFDEA039-0971-4A3F-8A6B-A1F5FFB9D429}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 EndGlobal
