@@ -42,6 +42,8 @@ public class BansWebServer : WebServer
                 await banController.HandleBanRequest(requestContext));
             app.MapGetWithContext("/bans/list", async (requestContext) =>
                 await banController.HandleListBansRequest(requestContext));
+            app.MapGetWithContext("/bans/permissions", async (requestContext) =>
+                await banController.HandleGetPermissionsRequest(requestContext));
             
             // Add the account endpoints.
             var accountLinkController = new AccountLinkController();

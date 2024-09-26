@@ -10,6 +10,7 @@ using Sovereign.Api.Bans.Web.Server.Model;
 using Sovereign.Core.Database.Model.Api;
 using Sovereign.Core.Model;
 using Sovereign.Core.Model.Response;
+using Sovereign.Core.Model.Response.Api;
 using Sovereign.Core.Test.Model.Request.Authorization;
 
 namespace Sovereign.Api.Bans.Test.Web.Server.Controller;
@@ -765,6 +766,147 @@ public class BanControllerTest
         Assert.That(banEntriesResponse.Entries[2].Reason.ActingUserId, Is.EqualTo(12345));
         Assert.That(banEntriesResponse.Entries[2].Reason.Display, Is.EqualTo("Test Display 4"));
         Assert.That(banEntriesResponse.Entries[2].Reason.Private, Is.EqualTo("Test Private 4"));
+    }
+
+    [Test]
+    public void TestHandleGetPermissionsRequestMissingParameters()
+    {
+        this.PrepareValidConfiguration();
+        var context = TestRequestContext.FromQuery("");
+        var response = this._banController.HandleGetPermissionsRequest(context).Result;
+        Assert.That(response.StatusCode, Is.EqualTo(400));
+        var validationErrorResponse = (ValidationErrorResponse) response.Response;
+        Assert.That(validationErrorResponse.Errors.Count, Is.EqualTo(3));
+        Assert.That(validationErrorResponse.Errors[0].Path, Is.EqualTo("domain"));
+        Assert.That(validationErrorResponse.Errors[0].Message, Is.EqualTo("domain was not provided in the query parameters."));
+        Assert.That(validationErrorResponse.Errors[1].Path, Is.EqualTo("linkMethod"));
+        Assert.That(validationErrorResponse.Errors[1].Message, Is.EqualTo("linkMethod was not provided in the query parameters."));
+        Assert.That(validationErrorResponse.Errors[2].Path, Is.EqualTo("linkData"));
+        Assert.That(validationErrorResponse.Errors[2].Message, Is.EqualTo("linkData was not provided in the query parameters."));
+    }
+    
+    [Test]
+    public void TestHandleGetPermissionsRequestNoDomains()
+    {
+        this._testResources.Configuration = new BansConfiguration()
+        {
+            Domains = null,
+        };
+        
+        var context = TestRequestContext.FromQuery("?domain=testDomain&linkmethod=roblox&linkdata=12345");
+        var response = this._banController.HandleGetPermissionsRequest(context).Result;
+        var simpleResponse = response.Response;
+        Assert.That(response.StatusCode, Is.EqualTo(503));
+        Assert.That(simpleResponse.Status, Is.EqualTo("ServerConfigurationError"));
+    }
+    
+    [Test]
+    public void TestHandleGetPermissionsRequestUnknownDomain()
+    {
+        this.PrepareValidConfiguration();
+        var context = TestRequestContext.FromQuery("?domain=unknownDomain&linkmethod=roblox&linkdata=12345");
+        var response = this._banController.HandleGetPermissionsRequest(context).Result;
+        var simpleResponse = response.Response;
+        Assert.That(response.StatusCode, Is.EqualTo(401));
+        Assert.That(simpleResponse.Status, Is.EqualTo("Unauthorized"));
+    }
+    
+    [Test]
+    public void TestHandleGetPermissionsRequestUnauthorizedHeader()
+    {
+        this.PrepareValidConfiguration();
+        var context = TestRequestContext.FromQuery("?domain=testDomain&linkmethod=roblox&linkdata=12345");
+        context.Authorized = false;
+        var response = this._banController.HandleGetPermissionsRequest(context).Result;
+        var simpleResponse = response.Response;
+        Assert.That(response.StatusCode, Is.EqualTo(401));
+        Assert.That(simpleResponse.Status, Is.EqualTo("Unauthorized"));
+    }
+    
+    [Test]
+    public void TestHandleGetPermissionsRequestMissingAccountLink()
+    {
+        this.PrepareValidConfiguration();
+        var context = TestRequestContext.FromQuery("?domain=testDomain&linkmethod=TestMethod&linkdata=Data");
+        var response = this._banController.HandleGetPermissionsRequest(context).Result;
+        var permissionResponse = (BanPermissionResponse) response.Response;
+        Assert.That(response.StatusCode, Is.EqualTo(200));
+        Assert.That(permissionResponse.Status, Is.EqualTo("Success"));
+        Assert.That(permissionResponse.CanBan, Is.False);
+        Assert.That(permissionResponse.BanPermissionIssue, Is.EqualTo(BanPermissionIssue.InvalidAccountLink));
+    }
+    
+    [Test]
+    public void TestHandleGetPermissionsRequestMalformedRobloxId()
+    {
+        this.PrepareValidConfiguration();
+        var context = TestRequestContext.FromQuery("?domain=testDomain&linkmethod=roblox&linkdata=Data");
+        var response = this._banController.HandleGetPermissionsRequest(context).Result;
+        var permissionResponse = (BanPermissionResponse) response.Response;
+        Assert.That(response.StatusCode, Is.EqualTo(200));
+        Assert.That(permissionResponse.Status, Is.EqualTo("Success"));
+        Assert.That(permissionResponse.CanBan, Is.False);
+        Assert.That(permissionResponse.BanPermissionIssue, Is.EqualTo(BanPermissionIssue.MalformedRobloxId));
+    }
+    
+    [Test]
+    public void TestHandleGetPermissionsRequestForbiddenRobloxId()
+    {
+        this._testResources.Configuration = new BansConfiguration()
+        {
+            Domains = new List<DomainConfiguration>()
+            {
+                new DomainConfiguration()
+                {
+                    Name = "TestDomain",
+                    Rules = new List<AuthenticationRuleEntry>(),
+                },
+            },
+        };
+        
+        var context = TestRequestContext.FromQuery("?domain=testDomain&linkmethod=roblox&linkdata=12345");
+        var response = this._banController.HandleGetPermissionsRequest(context).Result;
+        var permissionResponse = (BanPermissionResponse) response.Response;
+        Assert.That(response.StatusCode, Is.EqualTo(200));
+        Assert.That(permissionResponse.Status, Is.EqualTo("Success"));
+        Assert.That(permissionResponse.CanBan, Is.False);
+        Assert.That(permissionResponse.BanPermissionIssue, Is.EqualTo(BanPermissionIssue.Forbidden));
+    }
+    
+    [Test]
+    public void TestHandleGetPermissionsRequestRobloxIdSuccess()
+    {
+        this.PrepareValidConfiguration();
+        var context = TestRequestContext.FromQuery("?domain=testDomain&linkmethod=roblox&linkdata=12345");
+        var response = this._banController.HandleGetPermissionsRequest(context).Result;
+        var permissionResponse = (BanPermissionResponse) response.Response;
+        Assert.That(response.StatusCode, Is.EqualTo(200));
+        Assert.That(permissionResponse.Status, Is.EqualTo("Success"));
+        Assert.That(permissionResponse.CanBan, Is.True);
+        Assert.That(permissionResponse.BanPermissionIssue, Is.Null);
+    }
+    
+    [Test]
+    public void TestHandleGetPermissionsRequestExternalLinkSuccess()
+    {
+        this.PrepareValidConfiguration();
+        var banContext = this._testResources.GetBansContext();
+        banContext.ExternalAccountLinks.Add(new ExternalAccountLink()
+        {
+            RobloxUserId = 12345,
+            Domain = "TestDomain",
+            LinkMethod = "TestLink",
+            LinkData = "TestData",
+        });
+        banContext.SaveChanges();
+        
+        var context = TestRequestContext.FromQuery("?domain=testDomain&linkmethod=testLink&linkdata=TestData");
+        var response = this._banController.HandleGetPermissionsRequest(context).Result;
+        var permissionResponse = (BanPermissionResponse) response.Response;
+        Assert.That(response.StatusCode, Is.EqualTo(200));
+        Assert.That(permissionResponse.Status, Is.EqualTo("Success"));
+        Assert.That(permissionResponse.CanBan, Is.True);
+        Assert.That(permissionResponse.BanPermissionIssue, Is.Null);
     }
 
     public void PrepareValidConfiguration()

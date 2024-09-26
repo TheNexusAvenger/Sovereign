@@ -15,6 +15,7 @@ using Sovereign.Core.Database.Model.Api;
 using Sovereign.Core.Model;
 using Sovereign.Core.Model.Request.Authorization;
 using Sovereign.Core.Model.Response;
+using Sovereign.Core.Model.Response.Api;
 using Sovereign.Core.Web.Server.Request;
 
 namespace Sovereign.Api.Bans.Web.Server.Controller;
@@ -407,7 +408,7 @@ public class BanController
         
         // Get the domain for the request.
         var configuration = this.ControllerResources.GetConfiguration();
-        var domain = requestContext.QueryParameters["Domain"].First()!.ToLower();
+        var domain = requestContext.QueryParameters["domain"].First()!.ToLower();
         var domains = configuration.Domains;
         if (domains == null)
         {
@@ -455,5 +456,103 @@ public class BanController
                 },
             }).ToList(),
         }, 200);
+    }
+    
+    /// <summary>
+    /// Handles a request to get user permissions.
+    /// </summary>
+    public async Task<JsonResponse> HandleGetPermissionsRequest(BaseRequestContext requestContext)
+    {
+        // Return a validation error.
+        var validationError = ValidationErrorResponse.GetValidationErrorResponse(new List<ValidationErrorCheck>()
+        {
+            new ValidationErrorCheck()
+            {
+                Path = "domain",
+                Message = "domain was not provided in the query parameters.",
+                IsValid = () => requestContext.QueryParameters.ContainsKey("domain"),
+            },
+            new ValidationErrorCheck()
+            {
+                Path = "linkMethod",
+                Message = "linkMethod was not provided in the query parameters.",
+                IsValid = () => requestContext.QueryParameters.ContainsKey("linkMethod"),
+            },
+            new ValidationErrorCheck()
+            {
+                Path = "linkData",
+                Message = "linkData was not provided in the query parameters.",
+                IsValid = () => requestContext.QueryParameters.ContainsKey("linkData"),
+            },
+        });
+        if (validationError != null)
+        {
+            Logger.Trace($"Ignoring request to GET /bans/permissions due {validationError.Errors.Count} validation errors.");
+            return new JsonResponse(validationError, 400);
+        }
+        
+        // Get the domain for the request.
+        var configuration = this.ControllerResources.GetConfiguration();
+        var domain = requestContext.QueryParameters["domain"].First()!.ToLower();
+        var domains = configuration.Domains;
+        if (domains == null)
+        {
+            Logger.Error("Domains was not configured in the configuration.");
+            return new JsonResponse(new SimpleResponse("ServerConfigurationError"), 503);
+        }
+        var domainData = domains.FirstOrDefault(domainData => domainData.Name != null && domainData.Name.ToLower() == domain);
+        if (domainData == null)
+        {
+            Logger.Trace("Ignoring request to GET /bans/permissions due an invalid domain.");
+            return SimpleResponse.UnauthorizedResponse;
+        }
+        
+        // Return 401 if the authorization header was invalid for the request.
+        if (!requestContext.IsAuthorized(domainData.ApiKeys, domainData.SecretKeys))
+        {
+            Logger.Trace("Ignoring request to GET /bans/permissions due to an invalid or missing authorization header.");
+            return SimpleResponse.UnauthorizedResponse;
+        }
+        
+        // Convert the Roblox user authorization and prepare the response.
+        var response = new BanPermissionResponse();
+        await using var bansContext = this.ControllerResources.GetBansContext();
+        var authenticationMethod = requestContext.QueryParameters["linkMethod"].First()!.ToLower();
+        var authenticationData = requestContext.QueryParameters["linkData"].First();
+        if (authenticationMethod != "roblox")
+        {
+            var authenticationLink = await bansContext.ExternalAccountLinks.FirstOrDefaultAsync(link => link.Domain.ToLower() == domain && link.LinkMethod.ToLower() == authenticationMethod && link.LinkData == authenticationData);
+            if (authenticationLink == null)
+            {
+                Logger.Trace($"Returning InvalidAccountLink ban permission issue in domain {domainData.Name} for link method \"{authenticationMethod}\".");
+                response.CanBan = false;
+                response.BanPermissionIssue = BanPermissionIssue.InvalidAccountLink;
+            }
+            else
+            {
+                authenticationData = authenticationLink.RobloxUserId.ToString();
+            }
+        }
+        if (!long.TryParse(authenticationData, out var actingRobloxId) && response.CanBan)
+        {
+            Logger.Trace($"Returning MalformedRobloxId ban permission issue in domain {domainData.Name} for link method \"{authenticationMethod}\".");
+            response.CanBan = false;
+            response.BanPermissionIssue = BanPermissionIssue.MalformedRobloxId;
+        }
+        
+        // Verify the Roblox user can handle the ban.
+        if (response.CanBan)
+        {
+            var authorizationError = domainData.IsRobloxUserAuthorized(actingRobloxId);
+            if (authorizationError != null)
+            {
+                Logger.Trace($"Returning Forbidden ban permission issue in in domain {domainData.Name} for link method \"{authenticationMethod}\".");
+                response.CanBan = false;
+                response.BanPermissionIssue = BanPermissionIssue.Forbidden;
+            }
+        }
+        
+        // Return the response.
+        return new JsonResponse(response, 200);
     }
 }

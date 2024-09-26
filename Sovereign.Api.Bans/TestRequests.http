@@ -247,3 +247,34 @@ Authorization: ApiKey {{apiKey}}
 ### List bans: no bans [200]
 GET {{host}}/bans/list/?domain={{domain}}&robloxUserId=34567
 Authorization: ApiKey {{apiKey}}
+
+
+
+
+
+### Get permissions: validation error [400]
+GET {{host}}/bans/permissions/
+
+### Get permissions: invalid domain [401]
+GET {{host}}/bans/permissions/?domain=UnknownDomain&linkMethod=TestLinkMethod&linkData=TestLinkData
+Authorization: ApiKey {{apiKey}}
+
+### Get permissions: invalid header for domain [401]
+GET {{host}}/bans/permissions/?domain={{domain}}&linkMethod=TestLinkMethod&linkData=TestLinkData
+Authorization: ApiKey InvalidApiKey
+
+### Get permissions: invalid link [200]
+GET {{host}}/bans/permissions/?domain={{domain}}&linkMethod=TestLinkMethod&linkData=UnknownLink
+Authorization: ApiKey {{apiKey}}
+
+### Get permissions: forbidden user [200]
+GET {{host}}/bans/permissions/?domain={{domain}}&linkMethod=Roblox&linkData=23456
+Authorization: ApiKey {{apiKey}}
+
+### Get permissions: valid user [200]
+GET {{host}}/bans/permissions/?domain={{domain}}&linkMethod=Roblox&linkData=12345
+Authorization: ApiKey {{apiKey}}
+
+### Get permissions: account link [200]
+GET {{host}}/bans/permissions/?domain={{domain}}&linkMethod=TestLinkMethod&linkData=TestLinkData
+Authorization: ApiKey {{apiKey}}
