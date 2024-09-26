@@ -25,6 +25,7 @@ public class Program : BaseProgram<GamesConfiguration>
             bansContext.MigrateAsync().Wait();
             
         }
+        
         // Start the game ban loops.
         var gameBanLoopCollection = new GameBanLoopCollection();
         
