@@ -6,6 +6,7 @@ using System.Security.Cryptography;
 using System.Text;
 using Bouncer.Test.Web.Client.Shim;
 using NUnit.Framework;
+using Sovereign.Core.Model.Response;
 using Sovereign.Core.Model.Response.Api;
 using Sovereign.Discord.Configuration;
 using Sovereign.Discord.Web.Client;
@@ -57,7 +58,7 @@ public class SovereignBansApiClientTest
     {
         this._testHttpClient.SetResponse("http://localhost:8000/bans/permissions/?domain=TestDomain&linkMethod=Discord&linkData=12345", HttpStatusCode.OK, "{\"status\":\"Success\",\"canBan\":false,\"banPermissionIssue\":\"Forbidden\"}");
         var response = this._client.GetPermissionsAsync("TestDomain", 12345L).Result;
-        Assert.That(response.Status, Is.EqualTo("Success"));
+        Assert.That(response.Status, Is.EqualTo(ResponseStatus.Success));
         Assert.That(response.BanPermissionIssue, Is.EqualTo(BanPermissionIssue.Forbidden));
         Assert.That(response.CanBan, Is.False);
     }

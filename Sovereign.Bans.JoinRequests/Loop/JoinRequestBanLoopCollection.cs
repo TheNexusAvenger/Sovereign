@@ -112,7 +112,7 @@ public class JoinRequestBanLoopCollection : GenericLoopCollection<JoinRequestBan
                 catch (Exception e)
                 {
                     Logger.Error($"Failed to process ban {banEntry.Id} in domain {domain} in loop {loop.Name}: {e}");
-                    return new JsonResponse(new SimpleResponse("ServerProcessingError"), 500);
+                    return new JsonResponse(new SimpleResponse(ResponseStatus.ServerProcessingError), 500);
                 }
             }
         }

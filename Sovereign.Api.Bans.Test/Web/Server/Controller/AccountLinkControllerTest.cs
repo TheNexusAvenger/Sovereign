@@ -53,7 +53,7 @@ public class AccountLinkControllerTest
         var response = this._accountLinkController.HandleExternalLinkRequest(this.GetContext(this.PrepareValidRequest())).Result;
         var simpleResponse = (SimpleResponse) response.Response;
         Assert.That(response.StatusCode, Is.EqualTo(503));
-        Assert.That(simpleResponse.Status, Is.EqualTo("ServerConfigurationError"));
+        Assert.That(simpleResponse.Status, Is.EqualTo(ResponseStatus.ServerConfigurationError));
     }
 
     [Test]
@@ -69,7 +69,7 @@ public class AccountLinkControllerTest
         })).Result;
         var simpleResponse = (SimpleResponse) response.Response;
         Assert.That(response.StatusCode, Is.EqualTo(401));
-        Assert.That(simpleResponse.Status, Is.EqualTo("Unauthorized"));
+        Assert.That(simpleResponse.Status, Is.EqualTo(ResponseStatus.Unauthorized));
     }
     
     [Test]
@@ -81,7 +81,7 @@ public class AccountLinkControllerTest
         var response = this._accountLinkController.HandleExternalLinkRequest(context).Result;
         var simpleResponse = response.Response;
         Assert.That(response.StatusCode, Is.EqualTo(401));
-        Assert.That(simpleResponse.Status, Is.EqualTo("Unauthorized"));
+        Assert.That(simpleResponse.Status, Is.EqualTo(ResponseStatus.Unauthorized));
     }
 
     [Test]
@@ -97,7 +97,7 @@ public class AccountLinkControllerTest
         })).Result;
         var simpleResponse = (SimpleResponse) response.Response;
         Assert.That(response.StatusCode, Is.EqualTo(403));
-        Assert.That(simpleResponse.Status, Is.EqualTo("Forbidden"));
+        Assert.That(simpleResponse.Status, Is.EqualTo(ResponseStatus.Forbidden));
     }
     
     [Test]
@@ -107,7 +107,7 @@ public class AccountLinkControllerTest
         var response = this._accountLinkController.HandleExternalLinkRequest(this.GetContext(this.PrepareValidRequest())).Result;
         var simpleResponse = response.Response;
         Assert.That(response.StatusCode, Is.EqualTo(200));
-        Assert.That(simpleResponse.Status, Is.EqualTo("Success"));
+        Assert.That(simpleResponse.Status, Is.EqualTo(ResponseStatus.Success));
         
         var accountLink = this._testResources.GetBansContext().ExternalAccountLinks.First();
         Assert.That(accountLink.Domain, Is.EqualTo("TestDomain"));
@@ -133,7 +133,7 @@ public class AccountLinkControllerTest
         var response = this._accountLinkController.HandleExternalLinkRequest(this.GetContext(this.PrepareValidRequest())).Result;
         var simpleResponse = response.Response;
         Assert.That(response.StatusCode, Is.EqualTo(200));
-        Assert.That(simpleResponse.Status, Is.EqualTo("Success"));
+        Assert.That(simpleResponse.Status, Is.EqualTo(ResponseStatus.Success));
         
         var accountLink = this._testResources.GetBansContext().ExternalAccountLinks.First();
         Assert.That(accountLink.Domain, Is.EqualTo("TestDomain"));

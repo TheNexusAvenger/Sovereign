@@ -31,7 +31,7 @@ public class ValidationErrorResponseTest
             },
         });
         
-        Assert.That(response!.Status, Is.EqualTo("ValidationError"));
+        Assert.That(response!.Status, Is.EqualTo(ResponseStatus.ValidationError));
         Assert.That(response!.Errors[0].Path, Is.EqualTo("Path1.Path2"));
         Assert.That(response!.Errors[0].Message, Is.EqualTo("Test message 1"));
         Assert.That(response!.Errors[1].Path, Is.EqualTo("Path4"));

@@ -82,14 +82,6 @@ public class BanRecordResponse : BaseResponse
     public List<BanRecordResponseEntry> Entries { get; set; } = null!;
     
     /// <summary>
-    /// Creates a ban record response.
-    /// </summary>
-    public BanRecordResponse()
-    {
-        this.Status = "Success";
-    }
-    
-    /// <summary>
     /// Returns the JSON type information of the response.
     /// </summary>
     /// <returns>The JSON type information of the response.</returns>

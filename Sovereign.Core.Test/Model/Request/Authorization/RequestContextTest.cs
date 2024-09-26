@@ -12,7 +12,7 @@ namespace Sovereign.Core.Test.Model.Request.Authorization;
 
 public class RequestContextTest
 {
-    public static readonly string TestBody = "{\"Status\":\"Test\"}";
+    public static readonly string TestBody = "{\"status\":\"Success\"}";
     public static readonly List<string> ApiKeys = new List<string>() { "TestApiKey" };
     public static readonly List<string> Secrets = new List<string>() { "TestSecretKey" };
     
@@ -21,7 +21,7 @@ public class RequestContextTest
     {
         var requestContext = new RequestContext(CreateHttpContext());
         var response = requestContext.GetRequest(SimpleResponseJsonContext.Default.SimpleResponse);
-        Assert.That(response!.Status, Is.EqualTo("Test"));
+        Assert.That(response!.Status, Is.EqualTo(ResponseStatus.Success));
     }
 
     [Test]

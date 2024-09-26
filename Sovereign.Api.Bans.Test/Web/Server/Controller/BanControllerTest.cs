@@ -134,7 +134,7 @@ public class BanControllerTest
         })).Result;
         var simpleResponse = response.Response;
         Assert.That(response.StatusCode, Is.EqualTo(503));
-        Assert.That(simpleResponse.Status, Is.EqualTo("ServerConfigurationError"));
+        Assert.That(simpleResponse.Status, Is.EqualTo(ResponseStatus.ServerConfigurationError));
     }
     
     [Test]
@@ -165,7 +165,7 @@ public class BanControllerTest
         })).Result;
         var simpleResponse = response.Response;
         Assert.That(response.StatusCode, Is.EqualTo(401));
-        Assert.That(simpleResponse.Status, Is.EqualTo("Unauthorized"));
+        Assert.That(simpleResponse.Status, Is.EqualTo(ResponseStatus.Unauthorized));
     }
     
     [Test]
@@ -177,7 +177,7 @@ public class BanControllerTest
         var response = this._banController.HandleBanRequest(context).Result;
         var simpleResponse = response.Response;
         Assert.That(response.StatusCode, Is.EqualTo(401));
-        Assert.That(simpleResponse.Status, Is.EqualTo("Unauthorized"));
+        Assert.That(simpleResponse.Status, Is.EqualTo(ResponseStatus.Unauthorized));
     }
     
     [Test]
@@ -215,7 +215,7 @@ public class BanControllerTest
         })).Result;
         var simpleResponse = response.Response;
         Assert.That(response.StatusCode, Is.EqualTo(401));
-        Assert.That(simpleResponse.Status, Is.EqualTo("Unauthorized"));
+        Assert.That(simpleResponse.Status, Is.EqualTo(ResponseStatus.Unauthorized));
     }
     
     [Test]
@@ -253,7 +253,7 @@ public class BanControllerTest
         })).Result;
         var simpleResponse = response.Response;
         Assert.That(response.StatusCode, Is.EqualTo(401));
-        Assert.That(simpleResponse.Status, Is.EqualTo("Unauthorized"));
+        Assert.That(simpleResponse.Status, Is.EqualTo(ResponseStatus.Unauthorized));
     }
     
     [Test]
@@ -273,7 +273,7 @@ public class BanControllerTest
         var response = this._banController.HandleBanRequest(GetContext(this.PrepareValidResponse())).Result;
         var simpleResponse = response.Response;
         Assert.That(response.StatusCode, Is.EqualTo(503));
-        Assert.That(simpleResponse.Status, Is.EqualTo("ServerConfigurationError"));
+        Assert.That(simpleResponse.Status, Is.EqualTo(ResponseStatus.ServerConfigurationError));
     }
     
     [Test]
@@ -299,7 +299,7 @@ public class BanControllerTest
         var response = this._banController.HandleBanRequest(GetContext(this.PrepareValidResponse())).Result;
         var simpleResponse = response.Response;
         Assert.That(response.StatusCode, Is.EqualTo(503));
-        Assert.That(simpleResponse.Status, Is.EqualTo("ServerError"));
+        Assert.That(simpleResponse.Status, Is.EqualTo(ResponseStatus.ServerProcessingError));
     }
     
     [Test]
@@ -319,7 +319,7 @@ public class BanControllerTest
         var response = this._banController.HandleBanRequest(GetContext(this.PrepareValidResponse())).Result;
         var simpleResponse = response.Response;
         Assert.That(response.StatusCode, Is.EqualTo(403));
-        Assert.That(simpleResponse.Status, Is.EqualTo("Forbidden"));
+        Assert.That(simpleResponse.Status, Is.EqualTo(ResponseStatus.Forbidden));
     }
     
     [Test]
@@ -336,7 +336,7 @@ public class BanControllerTest
         var response = this._banController.HandleBanRequest(GetContext(this.PrepareValidResponse())).Result;
         var simpleResponse = response.Response;
         Assert.That(response.StatusCode, Is.EqualTo(403));
-        Assert.That(simpleResponse.Status, Is.EqualTo("GroupRankPermissionError"));
+        Assert.That(simpleResponse.Status, Is.EqualTo(ResponseStatus.GroupRankPermissionError));
     }
 
     [Test]
@@ -346,7 +346,7 @@ public class BanControllerTest
         var response = this._banController.HandleBanRequest(GetContext(this.PrepareValidResponse())).Result;
         var banResponse = (BanResponse) response.Response;
         Assert.That(response.StatusCode, Is.EqualTo(200));
-        Assert.That(banResponse.Status, Is.EqualTo("Success"));
+        Assert.That(banResponse.Status, Is.EqualTo(ResponseStatus.Success));
         Assert.That(banResponse.BannedUserIds, Is.EqualTo(new List<long>() { 23456, }));
         Assert.That(banResponse.UnbannedUserIds, Is.EqualTo(new List<long>()));
 
@@ -371,7 +371,7 @@ public class BanControllerTest
         var response = this._banController.HandleBanRequest(GetContext(request)).Result;
         var banResponse = (BanResponse) response.Response;
         Assert.That(response.StatusCode, Is.EqualTo(200));
-        Assert.That(banResponse.Status, Is.EqualTo("Success"));
+        Assert.That(banResponse.Status, Is.EqualTo(ResponseStatus.Success));
         Assert.That(banResponse.BannedUserIds, Is.EqualTo(new List<long>() { 23456, }));
         Assert.That(banResponse.UnbannedUserIds, Is.EqualTo(new List<long>()));
 
@@ -407,7 +407,7 @@ public class BanControllerTest
         var response = this._banController.HandleBanRequest(GetContext(this.PrepareValidResponse())).Result;
         var banResponse = (BanResponse) response.Response;
         Assert.That(response.StatusCode, Is.EqualTo(200));
-        Assert.That(banResponse.Status, Is.EqualTo("Success"));
+        Assert.That(banResponse.Status, Is.EqualTo(ResponseStatus.Success));
         Assert.That(banResponse.BannedUserIds, Is.EqualTo(new List<long>() { 23456, }));
         Assert.That(banResponse.UnbannedUserIds, Is.EqualTo(new List<long>()));
 
@@ -443,7 +443,7 @@ public class BanControllerTest
         var response = this._banController.HandleBanRequest(GetContext(this.PrepareValidResponse(BanAction.Unban))).Result;
         var banResponse = (BanResponse) response.Response;
         Assert.That(response.StatusCode, Is.EqualTo(200));
-        Assert.That(banResponse.Status, Is.EqualTo("Success"));
+        Assert.That(banResponse.Status, Is.EqualTo(ResponseStatus.Success));
         Assert.That(banResponse.BannedUserIds, Is.EqualTo(new List<long>()));
         Assert.That(banResponse.UnbannedUserIds, Is.EqualTo(new List<long>() { 23456, }));
 
@@ -466,7 +466,7 @@ public class BanControllerTest
         var response = this._banController.HandleBanRequest(GetContext(this.PrepareValidResponse(BanAction.Unban))).Result;
         var banResponse = (BanResponse) response.Response;
         Assert.That(response.StatusCode, Is.EqualTo(200));
-        Assert.That(banResponse.Status, Is.EqualTo("Success"));
+        Assert.That(banResponse.Status, Is.EqualTo(ResponseStatus.Success));
         Assert.That(banResponse.BannedUserIds, Is.EqualTo(new List<long>()));
         Assert.That(banResponse.UnbannedUserIds, Is.EqualTo(new List<long>()));
     }
@@ -491,7 +491,7 @@ public class BanControllerTest
         var response = this._banController.HandleBanRequest(GetContext(this.PrepareValidResponse(BanAction.Unban))).Result;
         var banResponse = (BanResponse) response.Response;
         Assert.That(response.StatusCode, Is.EqualTo(200));
-        Assert.That(banResponse.Status, Is.EqualTo("Success"));
+        Assert.That(banResponse.Status, Is.EqualTo(ResponseStatus.Success));
         Assert.That(banResponse.BannedUserIds, Is.EqualTo(new List<long>()));
         Assert.That(banResponse.UnbannedUserIds, Is.EqualTo(new List<long>()));
     }
@@ -517,7 +517,7 @@ public class BanControllerTest
         var response = this._banController.HandleBanRequest(GetContext(this.PrepareValidResponse(BanAction.Unban))).Result;
         var banResponse = (BanResponse) response.Response;
         Assert.That(response.StatusCode, Is.EqualTo(200));
-        Assert.That(banResponse.Status, Is.EqualTo("Success"));
+        Assert.That(banResponse.Status, Is.EqualTo(ResponseStatus.Success));
         Assert.That(banResponse.BannedUserIds, Is.EqualTo(new List<long>()));
         Assert.That(banResponse.UnbannedUserIds, Is.EqualTo(new List<long>()));
     }
@@ -542,7 +542,7 @@ public class BanControllerTest
         var response = this._banController.HandleBanRequest(GetContext(this.PrepareValidResponse(BanAction.Unban))).Result;
         var banResponse = (BanResponse) response.Response;
         Assert.That(response.StatusCode, Is.EqualTo(200));
-        Assert.That(banResponse.Status, Is.EqualTo("Success"));
+        Assert.That(banResponse.Status, Is.EqualTo(ResponseStatus.Success));
         Assert.That(banResponse.BannedUserIds, Is.EqualTo(new List<long>()));
         Assert.That(banResponse.UnbannedUserIds, Is.EqualTo(new List<long>()));
     }
@@ -567,7 +567,7 @@ public class BanControllerTest
         var response = this._banController.HandleBanRequest(GetContext(request)).Result;
         var banResponse = (BanResponse) response.Response;
         Assert.That(response.StatusCode, Is.EqualTo(200));
-        Assert.That(banResponse.Status, Is.EqualTo("Success"));
+        Assert.That(banResponse.Status, Is.EqualTo(ResponseStatus.Success));
         Assert.That(banResponse.BannedUserIds, Is.EqualTo(new List<long>() { 23456, }));
         Assert.That(banResponse.UnbannedUserIds, Is.EqualTo(new List<long>()));
 
@@ -597,7 +597,7 @@ public class BanControllerTest
         var response = this._banController.HandleBanRequest(GetContext(this.PrepareValidResponse())).Result;
         var simpleResponse = response.Response;
         Assert.That(response.StatusCode, Is.EqualTo(200));
-        Assert.That(simpleResponse.Status, Is.EqualTo("Success"));
+        Assert.That(simpleResponse.Status, Is.EqualTo(ResponseStatus.Success));
     }
     
     [Test]
@@ -614,7 +614,7 @@ public class BanControllerTest
         var response = this._banController.HandleBanRequest(GetContext(this.PrepareValidResponse())).Result;
         var simpleResponse = response.Response;
         Assert.That(response.StatusCode, Is.EqualTo(200));
-        Assert.That(simpleResponse.Status, Is.EqualTo("Success"));
+        Assert.That(simpleResponse.Status, Is.EqualTo(ResponseStatus.Success));
     }
 
     [Test]
@@ -671,7 +671,7 @@ public class BanControllerTest
         var response = this._banController.HandleListBansRequest(context).Result;
         var simpleResponse = response.Response;
         Assert.That(response.StatusCode, Is.EqualTo(401));
-        Assert.That(simpleResponse.Status, Is.EqualTo("Unauthorized"));
+        Assert.That(simpleResponse.Status, Is.EqualTo(ResponseStatus.Unauthorized));
     }
     
     [Test]
@@ -683,7 +683,7 @@ public class BanControllerTest
         var response = this._banController.HandleListBansRequest(context).Result;
         var simpleResponse = response.Response;
         Assert.That(response.StatusCode, Is.EqualTo(401));
-        Assert.That(simpleResponse.Status, Is.EqualTo("Unauthorized"));
+        Assert.That(simpleResponse.Status, Is.EqualTo(ResponseStatus.Unauthorized));
     }
     
     [Test]
@@ -710,7 +710,7 @@ public class BanControllerTest
         var response = this._banController.HandleListBansRequest(TestRequestContext.FromQuery("?domain=testDomain&robloxUserId=23456&max=3")).Result;
         var banEntriesResponse = (BanRecordResponse) response.Response;
         Assert.That(response.StatusCode, Is.EqualTo(200));
-        Assert.That(banEntriesResponse.Status, Is.EqualTo("Success"));
+        Assert.That(banEntriesResponse.Status, Is.EqualTo(ResponseStatus.Success));
         Assert.That(banEntriesResponse.Entries.Count, Is.EqualTo(3));
         Assert.That(banEntriesResponse.Entries[0].Action.Type, Is.EqualTo(BanAction.Unban));
         Assert.That(banEntriesResponse.Entries[0].Action.ExcludeAltAccounts, Is.False);
@@ -752,7 +752,7 @@ public class BanControllerTest
         var response = this._banController.HandleListBansRequest(TestRequestContext.FromQuery("?domain=testDomain&robloxUserId=23456&start=3&max=3")).Result;
         var banEntriesResponse = (BanRecordResponse) response.Response;
         Assert.That(response.StatusCode, Is.EqualTo(200));
-        Assert.That(banEntriesResponse.Status, Is.EqualTo("Success"));
+        Assert.That(banEntriesResponse.Status, Is.EqualTo(ResponseStatus.Success));
         Assert.That(banEntriesResponse.Entries.Count, Is.EqualTo(3));
         Assert.That(banEntriesResponse.Entries[0].Action.Type, Is.EqualTo(BanAction.Ban));
         Assert.That(banEntriesResponse.Entries[0].Reason.ActingUserId, Is.EqualTo(12345));
@@ -797,7 +797,7 @@ public class BanControllerTest
         var response = this._banController.HandleGetPermissionsRequest(context).Result;
         var simpleResponse = response.Response;
         Assert.That(response.StatusCode, Is.EqualTo(503));
-        Assert.That(simpleResponse.Status, Is.EqualTo("ServerConfigurationError"));
+        Assert.That(simpleResponse.Status, Is.EqualTo(ResponseStatus.ServerConfigurationError));
     }
     
     [Test]
@@ -808,7 +808,7 @@ public class BanControllerTest
         var response = this._banController.HandleGetPermissionsRequest(context).Result;
         var simpleResponse = response.Response;
         Assert.That(response.StatusCode, Is.EqualTo(401));
-        Assert.That(simpleResponse.Status, Is.EqualTo("Unauthorized"));
+        Assert.That(simpleResponse.Status, Is.EqualTo(ResponseStatus.Unauthorized));
     }
     
     [Test]
@@ -820,7 +820,7 @@ public class BanControllerTest
         var response = this._banController.HandleGetPermissionsRequest(context).Result;
         var simpleResponse = response.Response;
         Assert.That(response.StatusCode, Is.EqualTo(401));
-        Assert.That(simpleResponse.Status, Is.EqualTo("Unauthorized"));
+        Assert.That(simpleResponse.Status, Is.EqualTo(ResponseStatus.Unauthorized));
     }
     
     [Test]
@@ -831,7 +831,7 @@ public class BanControllerTest
         var response = this._banController.HandleGetPermissionsRequest(context).Result;
         var permissionResponse = (BanPermissionResponse) response.Response;
         Assert.That(response.StatusCode, Is.EqualTo(200));
-        Assert.That(permissionResponse.Status, Is.EqualTo("Success"));
+        Assert.That(permissionResponse.Status, Is.EqualTo(ResponseStatus.Success));
         Assert.That(permissionResponse.CanBan, Is.False);
         Assert.That(permissionResponse.BanPermissionIssue, Is.EqualTo(BanPermissionIssue.InvalidAccountLink));
     }
@@ -844,7 +844,7 @@ public class BanControllerTest
         var response = this._banController.HandleGetPermissionsRequest(context).Result;
         var permissionResponse = (BanPermissionResponse) response.Response;
         Assert.That(response.StatusCode, Is.EqualTo(200));
-        Assert.That(permissionResponse.Status, Is.EqualTo("Success"));
+        Assert.That(permissionResponse.Status, Is.EqualTo(ResponseStatus.Success));
         Assert.That(permissionResponse.CanBan, Is.False);
         Assert.That(permissionResponse.BanPermissionIssue, Is.EqualTo(BanPermissionIssue.MalformedRobloxId));
     }
@@ -868,7 +868,7 @@ public class BanControllerTest
         var response = this._banController.HandleGetPermissionsRequest(context).Result;
         var permissionResponse = (BanPermissionResponse) response.Response;
         Assert.That(response.StatusCode, Is.EqualTo(200));
-        Assert.That(permissionResponse.Status, Is.EqualTo("Success"));
+        Assert.That(permissionResponse.Status, Is.EqualTo(ResponseStatus.Success));
         Assert.That(permissionResponse.CanBan, Is.False);
         Assert.That(permissionResponse.BanPermissionIssue, Is.EqualTo(BanPermissionIssue.Forbidden));
     }
@@ -881,7 +881,7 @@ public class BanControllerTest
         var response = this._banController.HandleGetPermissionsRequest(context).Result;
         var permissionResponse = (BanPermissionResponse) response.Response;
         Assert.That(response.StatusCode, Is.EqualTo(200));
-        Assert.That(permissionResponse.Status, Is.EqualTo("Success"));
+        Assert.That(permissionResponse.Status, Is.EqualTo(ResponseStatus.Success));
         Assert.That(permissionResponse.CanBan, Is.True);
         Assert.That(permissionResponse.BanPermissionIssue, Is.Null);
     }
@@ -904,7 +904,7 @@ public class BanControllerTest
         var response = this._banController.HandleGetPermissionsRequest(context).Result;
         var permissionResponse = (BanPermissionResponse) response.Response;
         Assert.That(response.StatusCode, Is.EqualTo(200));
-        Assert.That(permissionResponse.Status, Is.EqualTo("Success"));
+        Assert.That(permissionResponse.Status, Is.EqualTo(ResponseStatus.Success));
         Assert.That(permissionResponse.CanBan, Is.True);
         Assert.That(permissionResponse.BanPermissionIssue, Is.Null);
     }

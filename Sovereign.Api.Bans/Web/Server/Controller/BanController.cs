@@ -137,7 +137,7 @@ public class BanController
         if (domains == null)
         {
             Logger.Error("Domains was not configured in the configuration.");
-            return new JsonResponse(new SimpleResponse("ServerConfigurationError"), 503);
+            return new JsonResponse(new SimpleResponse(ResponseStatus.ServerConfigurationError), 503);
         }
         var domainData = domains.FirstOrDefault(domainData => domainData.Name != null && domainData.Name.ToLower() == domain);
         if (domainData == null)
@@ -196,7 +196,7 @@ public class BanController
                     if (banningUserRank <= 0 && targetUserRank <= 0) continue;
                     if (banningUserRank > targetUserRank) continue;
                     Logger.Info($"Ignoring request to POST /bans/ban in domain {domainData.Name} due to {actingRobloxId} ({banningUserRank}) being above or the same rank as {targetRobloxId} ({targetUserRank}) in group {groupId}.");
-                    return new JsonResponse(new SimpleResponse("GroupRankPermissionError"), 403);
+                    return new JsonResponse(new SimpleResponse(ResponseStatus.GroupRankPermissionError), 403);
                 }
             }
         }
@@ -413,7 +413,7 @@ public class BanController
         if (domains == null)
         {
             Logger.Error("Domains was not configured in the configuration.");
-            return new JsonResponse(new SimpleResponse("ServerConfigurationError"), 503);
+            return new JsonResponse(new SimpleResponse(ResponseStatus.ServerConfigurationError), 503);
         }
         var domainData = domains.FirstOrDefault(domainData => domainData.Name != null && domainData.Name.ToLower() == domain);
         if (domainData == null)
@@ -498,7 +498,7 @@ public class BanController
         if (domains == null)
         {
             Logger.Error("Domains was not configured in the configuration.");
-            return new JsonResponse(new SimpleResponse("ServerConfigurationError"), 503);
+            return new JsonResponse(new SimpleResponse(ResponseStatus.ServerConfigurationError), 503);
         }
         var domainData = domains.FirstOrDefault(domainData => domainData.Name != null && domainData.Name.ToLower() == domain);
         if (domainData == null)

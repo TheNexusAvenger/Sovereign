@@ -8,30 +8,30 @@ public class SimpleResponse : BaseResponse
     /// <summary>
     /// Response for a successful request.
     /// </summary>
-    public static readonly JsonResponse SuccessResponse = new JsonResponse(new SimpleResponse("Success"), 200);
+    public static readonly JsonResponse SuccessResponse = new JsonResponse(new SimpleResponse(ResponseStatus.Success), 200);
     
     /// <summary>
     /// Response for a malformed request.
     /// </summary>
-    public static readonly JsonResponse MalformedRequestResponse = new JsonResponse(new SimpleResponse("MalformedRequest"), 400);
+    public static readonly JsonResponse MalformedRequestResponse = new JsonResponse(new SimpleResponse(ResponseStatus.MalformedRequest), 400);
     
     /// <summary>
     /// Response for an unauthorized response.
     /// Used for when a user can be confirmed.
     /// </summary>
-    public static readonly JsonResponse UnauthorizedResponse = new JsonResponse(new SimpleResponse("Unauthorized"), 401);
+    public static readonly JsonResponse UnauthorizedResponse = new JsonResponse(new SimpleResponse(ResponseStatus.Unauthorized), 401);
     
     /// <summary>
     /// Response for a forbidden response.
     /// Used for when a user can be confirmed but doesn't have access.
     /// </summary>
-    public static readonly JsonResponse ForbiddenResponse = new JsonResponse(new SimpleResponse("Forbidden"), 403);
+    public static readonly JsonResponse ForbiddenResponse = new JsonResponse(new SimpleResponse(ResponseStatus.Forbidden), 403);
     
     /// <summary>
     /// Creates a simple response.
     /// </summary>
     /// <param name="status">Status of the response.</param>
-    public SimpleResponse(string status)
+    public SimpleResponse(ResponseStatus status)
     {
         this.Status = status;
     }

@@ -65,7 +65,7 @@ public class DomainConfiguration
         if (this.Rules == null)
         {
             Logger.Error($"Domain \"{this.Name}\" was does not have rules.");
-            return new JsonResponse(new SimpleResponse("ServerConfigurationError"), 503);
+            return new JsonResponse(new SimpleResponse(ResponseStatus.ServerConfigurationError), 503);
         }
         
         // Iterate over the rules and return if there is a server error.
@@ -81,7 +81,7 @@ public class DomainConfiguration
             catch (Exception e)
             {
                 Logger.Error($"Error evaluating rule for {robloxUserId} in domain \"{this.Name}\".\n{e}");
-                return new JsonResponse(new SimpleResponse("ServerError"), 503); 
+                return new JsonResponse(new SimpleResponse(ResponseStatus.ServerProcessingError), 503); 
             }
         }
 

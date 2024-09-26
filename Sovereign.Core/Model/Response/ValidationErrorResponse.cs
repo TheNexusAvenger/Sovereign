@@ -45,7 +45,7 @@ public class ValidationErrorResponse : BaseResponse
     /// </summary>
     public ValidationErrorResponse()
     {
-        this.Status = "ValidationError";
+        this.Status = ResponseStatus.ValidationError;
     }
 
     /// <summary>

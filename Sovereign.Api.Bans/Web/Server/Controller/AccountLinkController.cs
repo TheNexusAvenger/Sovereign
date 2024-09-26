@@ -72,7 +72,7 @@ public class AccountLinkController
         if (domains == null)
         {
             Logger.Error("Domains was not configured in the configuration.");
-            return new JsonResponse(new SimpleResponse("ServerConfigurationError"), 503);
+            return new JsonResponse(new SimpleResponse(ResponseStatus.ServerConfigurationError), 503);
         }
         var domainData = domains.FirstOrDefault(domainData => domainData.Name != null && domainData.Name.ToLower() == domain);
         if (domainData == null)

@@ -12,7 +12,7 @@ public class DomainConfigurationTest
     {
         var testConfiguration = new DomainConfiguration();
         var response = testConfiguration.IsRobloxUserAuthorized(12345);
-        Assert.That(((SimpleResponse) response!.Response).Status, Is.EqualTo("ServerConfigurationError"));
+        Assert.That(((SimpleResponse) response!.Response).Status, Is.EqualTo(ResponseStatus.ServerConfigurationError));
         Assert.That(response.StatusCode, Is.EqualTo(503));
     }
     
@@ -31,7 +31,7 @@ public class DomainConfigurationTest
             },
         };
         var response = testConfiguration.IsRobloxUserAuthorized(12345);
-        Assert.That(((SimpleResponse) response!.Response).Status, Is.EqualTo("ServerError"));
+        Assert.That(((SimpleResponse) response!.Response).Status, Is.EqualTo(ResponseStatus.ServerProcessingError));
         Assert.That(response.StatusCode, Is.EqualTo(503));
     }
     
@@ -43,7 +43,7 @@ public class DomainConfigurationTest
             Rules = new List<AuthenticationRuleEntry>(),
         };
         var response = testConfiguration.IsRobloxUserAuthorized(12345);
-        Assert.That(((SimpleResponse) response!.Response).Status, Is.EqualTo("Forbidden"));
+        Assert.That(((SimpleResponse) response!.Response).Status, Is.EqualTo(ResponseStatus.Forbidden));
         Assert.That(response.StatusCode, Is.EqualTo(403));
     }
     
@@ -62,7 +62,7 @@ public class DomainConfigurationTest
             },
         };
         var response = testConfiguration.IsRobloxUserAuthorized(12345);
-        Assert.That(((SimpleResponse) response!.Response).Status, Is.EqualTo("Forbidden"));
+        Assert.That(((SimpleResponse) response!.Response).Status, Is.EqualTo(ResponseStatus.Forbidden));
         Assert.That(response.StatusCode, Is.EqualTo(403));
     }
     
