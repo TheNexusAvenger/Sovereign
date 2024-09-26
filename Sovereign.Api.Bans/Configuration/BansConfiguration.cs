@@ -114,6 +114,7 @@ public class BansConfiguration : BaseConfiguration
                         12345L,
                     },
                     ApiKeys = new List<string>() { "TestApiKey" },
+                    SecretKeys = new List<string>() { "TestSecretKey" },
                     Rules = new List<AuthenticationRuleEntry>()
                     {
                         new AuthenticationRuleEntry()

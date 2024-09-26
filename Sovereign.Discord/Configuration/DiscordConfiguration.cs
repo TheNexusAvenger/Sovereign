@@ -20,6 +20,21 @@ public class DiscordServerConfiguration
     public string? Domain { get; set; }
 }
 
+public class DiscordDomainConfiguration
+{
+    /// <summary>
+    /// Domain controlled by Discord servers.
+    /// </summary>
+    [JsonPropertyName("name")]
+    public string? Name { get; set; }
+    
+    /// <summary>
+    /// Secret key used for the authorization header.
+    /// </summary>
+    [JsonPropertyName("apiSecretKey")]
+    public string? ApiSecretKey { get; set; }
+}
+
 public class DiscordBotConfiguration
 {
     /// <summary>
@@ -45,6 +60,12 @@ public class DiscordConfiguration : BaseConfiguration
     public DiscordBotConfiguration? Discord { get; set; }
     
     /// <summary>
+    /// Domain configurations.
+    /// </summary>
+    [JsonPropertyName("domains")]
+    public List<DiscordDomainConfiguration>? Domains { get; set; }
+    
+    /// <summary>
     /// Returns the default configuration to use if the configuration file doesn't exist.
     /// </summary>
     /// <returns>Default configuration to store.</returns>
@@ -63,6 +84,14 @@ public class DiscordConfiguration : BaseConfiguration
                         Domain = "MyGame",
                     },
                 },
+            },
+            Domains = new List<DiscordDomainConfiguration>()
+            {
+                new DiscordDomainConfiguration()
+                {
+                    Name = "MyGame",
+                    ApiSecretKey = "TestSecretKey",
+                }  
             },
         };
     }
