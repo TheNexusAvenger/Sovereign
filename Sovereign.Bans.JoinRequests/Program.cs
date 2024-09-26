@@ -16,6 +16,8 @@ public class Program : BaseProgram<JoinRequestsConfiguration>
     public override void Run()
     {
         // Migrate the database.
+        using var context = new JoinRequestBansContext();
+        context.MigrateAsync().Wait();
         if (Environment.GetEnvironmentVariable("DATABASE_DIRECTORY_LOCATION") == null)
         {
             Logger.Debug("Creating bans database for testing due to DATABASE_DIRECTORY_LOCATION not being defined.");

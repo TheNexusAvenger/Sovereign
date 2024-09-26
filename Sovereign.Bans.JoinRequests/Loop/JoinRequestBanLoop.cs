@@ -11,6 +11,7 @@ using Microsoft.EntityFrameworkCore;
 using Sovereign.Bans.JoinRequests.Configuration;
 using Sovereign.Core.Database;
 using Sovereign.Core.Database.Model.Api;
+using Sovereign.Core.Database.Model.JoinRequests;
 using Sovereign.Core.Model;
 
 namespace Sovereign.Bans.JoinRequests.Loop;
@@ -27,6 +28,12 @@ public class JoinRequestBanLoop : BaseConfigurableLoop<JoinRequestsGroupConfigur
     /// Only intended for use in unit tests.
     /// </summary>
     public string? OverrideBansDatabasePath { get; set; }
+    
+    /// <summary>
+    /// Override path to the join request bans database.
+    /// Only intended for use in unit tests.
+    /// </summary>
+    public string? OverrideJoinRequestBansDatabasePath { get; set; }
     
     /// <summary>
     /// Client used for sending Roblox group requests.
@@ -88,7 +95,15 @@ public class JoinRequestBanLoop : BaseConfigurableLoop<JoinRequestsGroupConfigur
         if (!dryRun)
         {
             await this._robloxGroupClient.DeclineJoinRequestAsync(robloxGroupId, joinRequestUserId);
-            // TODO: Log to database.
+            await using var joinRequestBansContext = new JoinRequestBansContext(this.OverrideJoinRequestBansDatabasePath);
+            joinRequestBansContext.JoinRequestDeclineHistory.Add(new JoinRequestDeclineHistoryEntry()
+            {
+                BanId = latestBan.Id,
+                Domain = latestBan.Domain,
+                GroupId = robloxGroupId,
+                UserId = joinRequestUserId,
+            });
+            await joinRequestBansContext.SaveChangesAsync();
         }
         return true;
     }
