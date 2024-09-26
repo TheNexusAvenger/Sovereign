@@ -869,6 +869,7 @@ public class BanControllerTest
         var permissionResponse = (BanPermissionResponse) response.Response;
         Assert.That(response.StatusCode, Is.EqualTo(200));
         Assert.That(permissionResponse.Status, Is.EqualTo(ResponseStatus.Success));
+        Assert.That(permissionResponse.CanLink, Is.False);
         Assert.That(permissionResponse.CanBan, Is.False);
         Assert.That(permissionResponse.BanPermissionIssue, Is.EqualTo(BanPermissionIssue.Forbidden));
     }
@@ -882,6 +883,7 @@ public class BanControllerTest
         var permissionResponse = (BanPermissionResponse) response.Response;
         Assert.That(response.StatusCode, Is.EqualTo(200));
         Assert.That(permissionResponse.Status, Is.EqualTo(ResponseStatus.Success));
+        Assert.That(permissionResponse.CanLink, Is.True);
         Assert.That(permissionResponse.CanBan, Is.True);
         Assert.That(permissionResponse.BanPermissionIssue, Is.Null);
     }
@@ -905,8 +907,33 @@ public class BanControllerTest
         var permissionResponse = (BanPermissionResponse) response.Response;
         Assert.That(response.StatusCode, Is.EqualTo(200));
         Assert.That(permissionResponse.Status, Is.EqualTo(ResponseStatus.Success));
+        Assert.That(permissionResponse.CanLink, Is.True);
         Assert.That(permissionResponse.CanBan, Is.True);
         Assert.That(permissionResponse.BanPermissionIssue, Is.Null);
+    }
+    
+    [Test]
+    public void TestHandleGetPermissionsRequestOtherLinkData()
+    {
+        this.PrepareValidConfiguration();
+        var banContext = this._testResources.GetBansContext();
+        banContext.ExternalAccountLinks.Add(new ExternalAccountLink()
+        {
+            RobloxUserId = 23456,
+            Domain = "TestDomain",
+            LinkMethod = "TestLink",
+            LinkData = "TestData",
+        });
+        banContext.SaveChanges();
+        
+        var context = TestRequestContext.FromQuery("?domain=testDomain&linkmethod=Roblox&linkdata=23456");
+        var response = this._banController.HandleGetPermissionsRequest(context).Result;
+        var permissionResponse = (BanPermissionResponse) response.Response;
+        Assert.That(response.StatusCode, Is.EqualTo(200));
+        Assert.That(permissionResponse.Status, Is.EqualTo(ResponseStatus.Success));
+        Assert.That(permissionResponse.CanLink, Is.True);
+        Assert.That(permissionResponse.CanBan, Is.False);
+        Assert.That(permissionResponse.BanPermissionIssue, Is.EqualTo(BanPermissionIssue.Forbidden));
     }
 
     public void PrepareValidConfiguration()

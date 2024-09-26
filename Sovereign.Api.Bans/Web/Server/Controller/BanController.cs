@@ -533,7 +533,7 @@ public class BanController
                 authenticationData = authenticationLink.RobloxUserId.ToString();
             }
         }
-        if (!long.TryParse(authenticationData, out var actingRobloxId) && response.CanBan)
+        if (!long.TryParse(authenticationData, out var robloxUserId) && response.CanBan)
         {
             Logger.Trace($"Returning MalformedRobloxId ban permission issue in domain {domainData.Name} for link method \"{authenticationMethod}\".");
             response.CanBan = false;
@@ -543,13 +543,20 @@ public class BanController
         // Verify the Roblox user can handle the ban.
         if (response.CanBan)
         {
-            var authorizationError = domainData.IsRobloxUserAuthorized(actingRobloxId);
+            var authorizationError = domainData.IsRobloxUserAuthorized(robloxUserId);
             if (authorizationError != null)
             {
                 Logger.Trace($"Returning Forbidden ban permission issue in in domain {domainData.Name} for link method \"{authenticationMethod}\".");
                 response.CanBan = false;
                 response.BanPermissionIssue = BanPermissionIssue.Forbidden;
             }
+        }
+        
+        // Set the CanLink status.
+        // Users can link if they can ban or have existing links.
+        if (!response.CanBan && await bansContext.ExternalAccountLinks.AllAsync(entry => entry.RobloxUserId != robloxUserId))
+        {
+            response.CanLink = false;
         }
         
         // Return the response.

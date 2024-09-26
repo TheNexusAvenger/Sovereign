@@ -13,13 +13,19 @@ public enum BanPermissionIssue
 public class BanPermissionResponse : BaseResponse
 {
     /// <summary>
+    /// Whether the user can link.
+    /// </summary>
+    [JsonPropertyName("canLink")]
+    public bool CanLink { get; set; } = true;
+    
+    /// <summary>
     /// Whether the user can ban.
     /// </summary>
     [JsonPropertyName("canBan")]
     public bool CanBan { get; set; } = true;
     
     /// <summary>
-    /// If provided, the issue with the ban permisssion.
+    /// If provided, the issue with the ban permission.
     /// </summary>
     [JsonConverter(typeof(JsonStringEnumConverter<BanPermissionIssue>))]
     [JsonPropertyName("banPermissionIssue")]
