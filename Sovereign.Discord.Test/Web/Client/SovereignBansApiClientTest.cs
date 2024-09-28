@@ -72,4 +72,12 @@ public class SovereignBansApiClientTest
         Assert.That(response.BanPermissionIssue, Is.EqualTo(BanPermissionIssue.Forbidden));
         Assert.That(response.CanBan, Is.False);
     }
+
+    [Test]
+    public void TestLinkDiscordAccountAsync()
+    {
+        this._testHttpClient.SetResponse("http://localhost:8000/accounts/link", HttpStatusCode.OK, "{\"status\":\"Success\"}");
+        var response = this._client.LinkDiscordAccountAsync("TestDomain", 12345L, 23456L).Result;
+        Assert.That(response.Status, Is.EqualTo(ResponseStatus.Success));
+    }
 }

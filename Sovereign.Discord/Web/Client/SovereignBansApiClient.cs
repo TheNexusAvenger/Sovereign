@@ -2,6 +2,7 @@
 using System.IO;
 using System.Linq;
 using System.Net.Http;
+using System.Net.Http.Json;
 using System.Security.Cryptography;
 using System.Text;
 using System.Text.Json;
@@ -9,6 +10,8 @@ using System.Text.Json.Serialization.Metadata;
 using System.Threading.Tasks;
 using Bouncer.State;
 using Bouncer.Web.Client.Shim;
+using Sovereign.Core.Model.Request.Api;
+using Sovereign.Core.Model.Response;
 using Sovereign.Core.Model.Response.Api;
 using Sovereign.Discord.Configuration;
 
@@ -67,7 +70,7 @@ public class SovereignBansApiClient
     }
 
     /// <summary>
-    /// Sends a GET request to sovereign.
+    /// Sends a GET request to Sovereign.
     /// </summary>
     /// <param name="domain">Sovereign ban domain to perform the request to.</param>
     /// <param name="urlPath">Additional path after the base URL to use with Sovereign.</param>
@@ -88,6 +91,39 @@ public class SovereignBansApiClient
                 {"Authorization", authorizationHeader},
             },
             Method = HttpMethod.Get,
+        };
+        var response = await this._httpClient.SendAsync(request);
+        
+        // Parse and return the response.
+        return JsonSerializer.Deserialize<TResponse>(response.Content, jsonResponseTypeInfo)!;
+    }
+    
+    /// <summary>
+    /// Sends a GET request to Sovereign.
+    /// </summary>
+    /// <param name="domain">Sovereign ban domain to perform the request to.</param>
+    /// <param name="urlPath">Additional path after the base URL to use with Sovereign.</param>
+    /// <param name="requestBody">JSON body to send.</param>
+    /// <param name="jsonRequestTypeInfo">JSON type information for the request contents.</param>
+    /// <param name="jsonResponseTypeInfo">JSON type information for the response contents.</param>
+    /// <typeparam name="TRequest">Type of the request.</typeparam>
+    /// <typeparam name="TResponse">Type of the response.</typeparam>
+    /// <returns>JSON response for the request.</returns>
+    public async Task<TResponse> PostAsync<TRequest, TResponse>(string domain, string urlPath, TRequest requestBody, JsonTypeInfo<TRequest> jsonRequestTypeInfo, JsonTypeInfo<TResponse> jsonResponseTypeInfo)
+    {
+        // Send the request.
+        var requestData = await JsonContent.Create(requestBody, jsonRequestTypeInfo).ReadAsStringAsync();
+        var authorizationHeader = this.GetAuthorizationHeader(domain, requestData);
+        var baseUrl = Environment.GetEnvironmentVariable("SOVEREIGN_BANS_API_BASE_URL") ?? "http://localhost:8000";
+        var request = new HttpRequestMessage()
+        {
+            RequestUri = new Uri(baseUrl + urlPath),
+            Headers =
+            {
+                {"Authorization", authorizationHeader},
+            },
+            Method = HttpMethod.Post,
+            Content = JsonContent.Create(requestBody, jsonRequestTypeInfo),
         };
         var response = await this._httpClient.SendAsync(request);
         
@@ -117,5 +153,24 @@ public class SovereignBansApiClient
     {
         var query = $"?domain={domain}&linkMethod=Discord&linkData={discordUserId}";
         return await this.GetAsync(domain, "/bans/permissions/", query, BanPermissionResponseJsonContext.Default.BanPermissionResponse);
+    }
+
+    /// <summary>
+    /// Attempts to link a Discord account to a Roblox account.
+    /// </summary>
+    /// <param name="domain">Domain to link the accounts in.</param>
+    /// <param name="discordUserId">Discord user id to link.</param>
+    /// <param name="robloxUserId">Roblox user id to link.</param>
+    /// <returns>Response for the link request.</returns>
+    public async Task<SimpleResponse> LinkDiscordAccountAsync(string domain, ulong discordUserId, long robloxUserId)
+    {
+        var requestBody = new ExternalLinkRequest()
+        {
+            Domain = domain,
+            RobloxUserId = robloxUserId,
+            LinkMethod = "Discord",
+            LinkData = discordUserId.ToString(),
+        };
+        return await this.PostAsync(domain, "/accounts/link", requestBody, ExternalLinkRequestJsonContext.Default.ExternalLinkRequest, SimpleResponseJsonContext.Default.SimpleResponse);
     }
 }
