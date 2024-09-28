@@ -28,7 +28,7 @@ public class Bot
     {
         var config = new DiscordSocketConfig()
         {
-            GatewayIntents = GatewayIntents.None,
+            GatewayIntents = GatewayIntents.Guilds,
         };
         this._client = new DiscordSocketClient(config);
         this._interactionService = new InteractionService(this._client.Rest);
@@ -43,7 +43,7 @@ public class Bot
         Logger.Info("Starting Discord bot.");
         this._client.Log += (message) =>
         {
-            Logger.Debug(message.ToString());
+            Logger.Info(message.ToString());
             return Task.CompletedTask;
         };
         this._client.JoinedGuild += async (guild) => await this._interactionService.RegisterCommandsToGuildAsync(guild.Id);
