@@ -1,9 +1,8 @@
 ﻿using System.Collections.Generic;
 using System.Text.Json.Serialization;
 using System.Text.Json.Serialization.Metadata;
-using Sovereign.Core.Model.Response;
 
-namespace Sovereign.Api.Bans.Web.Server.Model;
+namespace Sovereign.Core.Model.Response.Api;
 
 public class BanResponse : BaseResponse
 {

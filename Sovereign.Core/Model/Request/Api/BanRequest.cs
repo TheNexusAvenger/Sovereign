@@ -1,8 +1,7 @@
 ﻿using System.Collections.Generic;
 using System.Text.Json.Serialization;
-using Sovereign.Core.Model;
 
-namespace Sovereign.Api.Bans.Web.Server.Model;
+namespace Sovereign.Core.Model.Request.Api;
 
 public class BanRequestAuthentication
 {

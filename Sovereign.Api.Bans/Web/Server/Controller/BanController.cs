@@ -13,6 +13,7 @@ using Sovereign.Api.Bans.Web.Server.Controller.Shim;
 using Sovereign.Api.Bans.Web.Server.Model;
 using Sovereign.Core.Database.Model.Api;
 using Sovereign.Core.Model;
+using Sovereign.Core.Model.Request.Api;
 using Sovereign.Core.Model.Request.Authorization;
 using Sovereign.Core.Model.Response;
 using Sovereign.Core.Model.Response.Api;

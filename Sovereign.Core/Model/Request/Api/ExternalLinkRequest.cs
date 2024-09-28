@@ -1,6 +1,6 @@
 ﻿using System.Text.Json.Serialization;
 
-namespace Sovereign.Api.Bans.Web.Server.Model;
+namespace Sovereign.Core.Model.Request.Api;
 
 public class ExternalLinkRequest
 {

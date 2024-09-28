@@ -4,8 +4,8 @@ using NUnit.Framework;
 using Sovereign.Api.Bans.Configuration;
 using Sovereign.Api.Bans.Test.Web.Server.Controller.Shim;
 using Sovereign.Api.Bans.Web.Server.Controller;
-using Sovereign.Api.Bans.Web.Server.Model;
 using Sovereign.Core.Database.Model.Api;
+using Sovereign.Core.Model.Request.Api;
 using Sovereign.Core.Model.Response;
 using Sovereign.Core.Test.Model.Request.Authorization;
 
@@ -163,6 +163,7 @@ public class AccountLinkControllerTest
             },
         };
     }
+    
     public ExternalLinkRequest PrepareValidRequest()
     {
         return new ExternalLinkRequest()
