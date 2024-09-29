@@ -14,7 +14,7 @@ public class LinkCommands : ExtendedInteractionModuleBase
     /// TODO: Consider OAuth2 support with configuration to allow/block link methods.
     /// </summary>
     [SlashCommand("startlink", "Prompts linking your Discord account to your Roblox account.")]
-    public async Task StartLink(long robloxUserId)
+    public async Task StartLink([Summary("Roblox_User_Id", "Roblox user id to link your Discord account to.")] long robloxUserId)
     {
         try
         {
@@ -34,7 +34,7 @@ public class LinkCommands : ExtendedInteractionModuleBase
                 var userPermissions = await context.GetPermissionsForRobloxUserAsync(domain, robloxUserId);
                 if (!userPermissions.CanLink)
                 {
-                    Logger.Debug($"Discord user {context.DiscordUserId} attempted to link in server {context.DiscordGuildId} for domain {domain} but was not allowed link.");
+                    Logger.Debug($"Discord user {context.DiscordUserId} attempted to link in server {context.DiscordGuildId} for domain {domain} but was not allowed to link.");
                     await context.RespondAsync("You are not authorized to link your account.");
                     return;
                 }
