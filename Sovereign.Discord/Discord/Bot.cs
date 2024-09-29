@@ -1,11 +1,15 @@
-﻿using System.Reflection;
+﻿using System;
+using System.Net.Http;
+using System.Reflection;
 using System.Threading.Tasks;
 using Bouncer.Diagnostic;
 using Bouncer.State;
+using Bouncer.Web.Server.Model;
 using Discord;
 using Discord.Interactions;
 using Discord.WebSocket;
 using Sovereign.Discord.Configuration;
+using Sovereign.Discord.Web.Server.Model;
 
 namespace Sovereign.Discord.Discord;
 
@@ -73,5 +77,72 @@ public class Bot
         {
             await this._interactionService.RegisterCommandsToGuildAsync(guild.Id);
         }
+    }
+
+    /// <summary>
+    /// Performs a health check on the Discord bot.
+    /// </summary>
+    /// <returns>Result of the health check.</returns>
+    public async Task<DiscordHealthCheckResult> PerformHealthCheckAsync()
+    {
+        // Set the status based on the Discord bot status.
+        Logger.Debug("Performing health check.");
+        var healthCheck = new DiscordHealthCheckResult();
+        if (this._client.ConnectionState != ConnectionState.Connected)
+        {
+            healthCheck.Status = HealthCheckResultStatus.Down;
+            healthCheck.Discord.Status = HealthCheckResultStatus.Down;
+            Logger.Warn($"Discord bot is currently {this._client.ConnectionState}.");
+        }
+        else
+        {
+            Logger.Debug("Discord bot is currently connected.");
+        }
+        
+        // Check the status of the Sovereign API.
+        try
+        {
+            var client = new HttpClient();
+            var baseUrl = Environment.GetEnvironmentVariable("SOVEREIGN_BANS_API_BASE_URL") ?? "http://localhost:8000";
+            var response = await client.GetAsync($"{baseUrl}/health");
+            if (!response.IsSuccessStatusCode)
+            {
+                healthCheck.Status = HealthCheckResultStatus.Down;
+                healthCheck.Sovereign.Status = HealthCheckResultStatus.Down;
+                Logger.Warn("Sovereign API returned a down status.");
+            }
+            else
+            {
+                Logger.Debug("Sovereign API returned a up status.");
+            }
+        }
+        catch (Exception e)
+        {
+            healthCheck.Status = HealthCheckResultStatus.Down;
+            healthCheck.Sovereign.Status = HealthCheckResultStatus.Down;
+            Logger.Error($"Failed to perform health check on the Sovereign API.\n{e}");
+        }
+        
+        // Set the bot status.
+        try
+        {
+            if (healthCheck.Status == HealthCheckResultStatus.Up)
+            {
+                Logger.Debug("Setting Discord bot health check status to up.");
+                await this._client.SetStatusAsync(UserStatus.Online);
+            }
+            else
+            {
+                Logger.Debug("Setting Discord bot health check status to down.");
+                await this._client.SetStatusAsync(UserStatus.DoNotDisturb);
+            }
+        }
+        catch (Exception e)
+        {
+            Logger.Error($"Failed to set Discord bot status.\n{e}");
+        }
+        
+        // Return the status.
+        return healthCheck;
     }
 }

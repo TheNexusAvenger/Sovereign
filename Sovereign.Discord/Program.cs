@@ -1,6 +1,7 @@
 ﻿using Sovereign.Core;
 using Sovereign.Discord.Configuration;
 using Sovereign.Discord.Discord;
+using Sovereign.Discord.Web.Server;
 
 namespace Sovereign.Discord;
 
@@ -16,7 +17,7 @@ public class Program : BaseProgram<DiscordConfiguration>
         bot.StartAsync().Wait();
         
         // Start the web server.
-        // TODO
+        new DiscordWebServer().StartAsync(bot).Wait();
     }
 
     /// <summary>
