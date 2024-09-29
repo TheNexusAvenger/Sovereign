@@ -432,14 +432,16 @@ public class BanController
         
         // List the bans and return the entries.
         await using var bansContext = this.ControllerResources.GetBansContext();
-        var banEntries = await bansContext.BanEntries
-            .Where(entry => entry.Domain.ToLower() == domain && entry.TargetRobloxUserId == robloxUserId)
+        var userBanEntriesQuery = bansContext.BanEntries
+            .Where(entry => entry.Domain.ToLower() == domain && entry.TargetRobloxUserId == robloxUserId);
+        var banEntries = await userBanEntriesQuery
             .OrderByDescending(entry => entry.StartTime)
             .Skip(startIndex)
             .Take(Math.Min(maxEntries, 100)).ToListAsync();
         Logger.Debug($"Returning {banEntries.Count} for domain {domainData.Name} user id {robloxUserId}.");
         return new JsonResponse(new BanRecordResponse()
         {
+            Total = await userBanEntriesQuery.CountAsync(),
             Entries = banEntries.Select(entry => new BanRecordResponseEntry()
             {
                 Action =

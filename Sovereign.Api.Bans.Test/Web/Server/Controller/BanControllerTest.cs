@@ -711,6 +711,7 @@ public class BanControllerTest
         var banEntriesResponse = (BanRecordResponse) response.Response;
         Assert.That(response.StatusCode, Is.EqualTo(200));
         Assert.That(banEntriesResponse.Status, Is.EqualTo(ResponseStatus.Success));
+        Assert.That(banEntriesResponse.Total, Is.EqualTo(10));
         Assert.That(banEntriesResponse.Entries.Count, Is.EqualTo(3));
         Assert.That(banEntriesResponse.Entries[0].Action.Type, Is.EqualTo(BanAction.Unban));
         Assert.That(banEntriesResponse.Entries[0].Action.ExcludeAltAccounts, Is.False);
@@ -753,6 +754,7 @@ public class BanControllerTest
         var banEntriesResponse = (BanRecordResponse) response.Response;
         Assert.That(response.StatusCode, Is.EqualTo(200));
         Assert.That(banEntriesResponse.Status, Is.EqualTo(ResponseStatus.Success));
+        Assert.That(banEntriesResponse.Total, Is.EqualTo(10));
         Assert.That(banEntriesResponse.Entries.Count, Is.EqualTo(3));
         Assert.That(banEntriesResponse.Entries[0].Action.Type, Is.EqualTo(BanAction.Ban));
         Assert.That(banEntriesResponse.Entries[0].Reason.ActingUserId, Is.EqualTo(12345));

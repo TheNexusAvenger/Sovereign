@@ -74,6 +74,12 @@ public class BanRecordResponseEntry
 public class BanRecordResponse : BaseResponse
 {
     /// <summary>
+    /// Total number of entries the user has.
+    /// </summary>
+    [JsonPropertyName("total")]
+    public int Total { get; set; }
+    
+    /// <summary>
     /// List of ban entries.
     /// </summary>
     [JsonPropertyName("entries")]
