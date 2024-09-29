@@ -20,6 +20,33 @@ public class DiscordServerConfiguration
     public string? Domain { get; set; }
 }
 
+public class DiscordDomainBanOptionConfiguration
+{
+    /// <summary>
+    /// Name of the ban option shown in the /startban menu.
+    /// </summary>
+    [JsonPropertyName("name")]
+    public string? Name { get; set; }
+    
+    /// <summary>
+    /// Description of the ban option shown in the /startban menu.
+    /// </summary>
+    [JsonPropertyName("description")]
+    public string? Description { get; set; }
+    
+    /// <summary>
+    /// Default display reason to show when banning.
+    /// </summary>
+    [JsonPropertyName("defaultDisplayReason")]
+    public string? DefaultDisplayReason { get; set; }
+    
+    /// <summary>
+    /// Default private reason to show when banning.
+    /// </summary>
+    [JsonPropertyName("defaultPrivateReason")]
+    public string? DefaultPrivateReason { get; set; }
+}
+
 public class DiscordDomainConfiguration
 {
     /// <summary>
@@ -33,6 +60,12 @@ public class DiscordDomainConfiguration
     /// </summary>
     [JsonPropertyName("apiSecretKey")]
     public string? ApiSecretKey { get; set; }
+    
+    /// <summary>
+    /// Options to show when banning.
+    /// </summary>
+    [JsonPropertyName("banOptions")]
+    public List<DiscordDomainBanOptionConfiguration>? BanOptions { get; set; }
 }
 
 public class DiscordBotConfiguration
@@ -91,7 +124,27 @@ public class DiscordConfiguration : BaseConfiguration
                 {
                     Name = "MyGame",
                     ApiSecretKey = "TestSecretKey",
-                }  
+                    BanOptions = new List<DiscordDomainBanOptionConfiguration>()
+                    {
+                        new DiscordDomainBanOptionConfiguration()
+                        {
+                            Name = "Exploiting",
+                            Description = "Please specify details in the private reason. Use the Discord server in the game's social links to appeal",
+                            DefaultDisplayReason = "Banned for exploiting.",
+                        },
+                        new DiscordDomainBanOptionConfiguration()
+                        {
+                            Name = "Harassment",
+                            DefaultDisplayReason = "Banned for harassment. Use the Discord server in the game's social links to appeal",
+                            DefaultPrivateReason = "No information given.",
+                        },
+                        new DiscordDomainBanOptionConfiguration()
+                        {
+                            Name = "Other",
+                            DefaultDisplayReason = "You are banned. Use the Discord server in the game's social links to appeal",
+                        },
+                    },
+                },
             },
         };
     }

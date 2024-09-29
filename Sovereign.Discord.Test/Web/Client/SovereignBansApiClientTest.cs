@@ -6,6 +6,7 @@ using System.Security.Cryptography;
 using System.Text;
 using Bouncer.Test.Web.Client.Shim;
 using NUnit.Framework;
+using Sovereign.Core.Model;
 using Sovereign.Core.Model.Response;
 using Sovereign.Core.Model.Response.Api;
 using Sovereign.Discord.Configuration;
@@ -78,6 +79,14 @@ public class SovereignBansApiClientTest
     {
         this._testHttpClient.SetResponse("http://localhost:8000/accounts/link", HttpStatusCode.OK, "{\"status\":\"Success\"}");
         var response = this._client.LinkDiscordAccountAsync("TestDomain", 12345L, 23456L).Result;
+        Assert.That(response.Status, Is.EqualTo(ResponseStatus.Success));
+    }
+
+    [Test]
+    public void TestBanAsync()
+    {
+        this._testHttpClient.SetResponse("http://localhost:8000/bans/ban", HttpStatusCode.OK, "{\"status\":\"Success\"}");
+        var response = this._client.BanAsync("TestDomain", BanAction.Ban, 12345L, new List<long>() { 23456 }, "Test Display", "Test Private").Result;
         Assert.That(response.Status, Is.EqualTo(ResponseStatus.Success));
     }
 }

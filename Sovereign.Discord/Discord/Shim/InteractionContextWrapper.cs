@@ -1,8 +1,10 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Threading.Tasks;
 using Bouncer.State;
 using Discord;
 using Discord.WebSocket;
+using Sovereign.Core.Model;
 using Sovereign.Core.Model.Response;
 using Sovereign.Core.Model.Response.Api;
 using Sovereign.Core.Web.Client;
@@ -23,6 +25,11 @@ public class InteractionContextWrapper : IInteractionContextWrapper
     /// Discord guild id of the interaction.
     /// </summary>
     public ulong DiscordGuildId => this._context.Guild.Id;
+
+    /// <summary>
+    /// Contents of the source message of the interaction.
+    /// </summary>
+    public string? SourceMessage => ((SocketMessageComponent?) this._context.Interaction)?.Message?.Content;
     
     /// <summary>
     /// Context used to interact with Discord.
@@ -72,6 +79,18 @@ public class InteractionContextWrapper : IInteractionContextWrapper
     }
 
     /// <summary>
+    /// Returns the ban permissions for a Discord user.
+    /// </summary>
+    /// <param name="domain">Domain of the bans to get the permissions for.</param>
+    /// <param name="discordUserId">Discord user id to check the permissions for.</param>
+    /// <returns>Response for the ban permissions.</returns>
+    public async Task<BanPermissionResponse> GetPermissionsForDiscordUserAsync(string domain, ulong discordUserId)
+    {
+        var sovereignBansApiClient = new SovereignBansApiClient();
+        return await sovereignBansApiClient.GetPermissionsForDiscordUserAsync(domain, discordUserId);
+    }
+
+    /// <summary>
     /// Attempts to link a Discord account to a Roblox account.
     /// </summary>
     /// <param name="domain">Domain to link the accounts in.</param>
@@ -82,6 +101,24 @@ public class InteractionContextWrapper : IInteractionContextWrapper
     {
         var sovereignBansApiClient = new SovereignBansApiClient();
         return await sovereignBansApiClient.LinkDiscordAccountAsync(domain, discordUserId, robloxUserId);
+    }
+
+
+    /// <summary>
+    /// Bans or unbans a list of Roblox user ids.
+    /// </summary>
+    /// <param name="domain">Domain to link the accounts in.</param>
+    /// <param name="banAction">Action to perform for the ban.</param>
+    /// <param name="discordUserId">Discord user id to ban the users as.</param>
+    /// <param name="robloxUserIds">Roblox user ids to link.</param>
+    /// <param name="displayReason">Reason to display to the users.</param>
+    /// <param name="privateReason">Reason to store internally for the bans.</param>
+    /// <param name="duration">Optional duration of the ban in seconds.</param>
+    /// <returns>Response for the bans.</returns>
+    public async Task<BanResponse> BanAsync(string domain, BanAction banAction, ulong discordUserId, List<long> robloxUserIds, string displayReason, string privateReason, long? duration = null)
+    {
+        var sovereignBansApiClient = new SovereignBansApiClient();
+        return await sovereignBansApiClient.BanAsync(domain, banAction, discordUserId, robloxUserIds, displayReason, privateReason, duration);
     }
 
     /// <summary>
@@ -96,6 +133,23 @@ public class InteractionContextWrapper : IInteractionContextWrapper
         try
         {
             await this._context.Interaction.RespondAsync(text: text, embed: embed, components: components, ephemeral: true);
+        }
+        catch (Exception)
+        {
+            // Ignore exceptions, in case the response was too late.
+        }
+    }
+
+    /// <summary>
+    /// Responds to the context user with a modal.
+    /// Exceptions for failed messages are not thrown.
+    /// </summary>
+    /// <param name="modal">Modal to display to the user.</param>
+    public async Task RespondAsync(Modal modal)
+    {
+        try
+        {
+            await this._context.Interaction.RespondWithModalAsync(modal);
         }
         catch (Exception)
         {

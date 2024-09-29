@@ -1,6 +1,7 @@
 ﻿using System.Collections.Generic;
 using System.Threading.Tasks;
 using Discord;
+using Sovereign.Core.Model;
 using Sovereign.Core.Model.Response;
 using Sovereign.Core.Model.Response.Api;
 using Sovereign.Core.Web.Client.Response;
@@ -21,12 +22,17 @@ public class TestInteractionContextWrapper : IInteractionContextWrapper
     /// <summary>
     /// Discord user id of the interaction.
     /// </summary>
-    public ulong DiscordUserId { set; get; } = 12345;
+    public ulong DiscordUserId { get; set; } = 12345;
 
     /// <summary>
     /// Discord guild id of the interaction.
     /// </summary>
-    public ulong DiscordGuildId { set; get; } = 23456;
+    public ulong DiscordGuildId { get; set; } = 23456;
+
+    /// <summary>
+    /// Contents of the source message of the interaction.
+    /// </summary>
+    public string? SourceMessage { get; set; } = null;
 
     /// <summary>
     /// Response to return for the user profile request.
@@ -52,6 +58,11 @@ public class TestInteractionContextWrapper : IInteractionContextWrapper
     /// Response to return for the Discord account link request.
     /// </summary>
     public SimpleResponse LinkDiscordAccountResponse { get; set; } = new SimpleResponse(ResponseStatus.Success);
+
+    /// <summary>
+    /// Response to return for a ban request.
+    /// </summary>
+    public BanResponse BanResponse { get; set; } = new BanResponse();
     
     /// <summary>
     /// Discord configuration to test.
@@ -69,12 +80,45 @@ public class TestInteractionContextWrapper : IInteractionContextWrapper
                 },
             },
         },
+        Domains = new List<DiscordDomainConfiguration>()
+        {
+            new DiscordDomainConfiguration()
+            {
+                Name = "TestDomain",
+                ApiSecretKey = "TestSecretKey",
+                BanOptions = new List<DiscordDomainBanOptionConfiguration>()
+                {
+                    new DiscordDomainBanOptionConfiguration()
+                    {
+                        Name = "Exploiting",
+                        Description = "Please specify details in the private reason.",
+                        DefaultDisplayReason = "Banned for exploiting. Use the Discord server in the game's social links to appeal.",
+                    },
+                    new DiscordDomainBanOptionConfiguration()
+                    {
+                        Name = "Harassment",
+                        DefaultDisplayReason = "Banned for harassment. Use the Discord server in the game's social links to appeal.",
+                        DefaultPrivateReason = "No information given.",
+                    },
+                    new DiscordDomainBanOptionConfiguration()
+                    {
+                        Name = "Other",
+                        DefaultDisplayReason = "You are banned. Use the Discord server in the game's social links to appeal.",
+                    },
+                },
+            },
+        },
     };
     
     /// <summary>
     /// Last message that was sent to the user.
     /// </summary>
     public RespondedMessage? LastMessage { get; private set; }
+    
+    /// <summary>
+    /// Last modal that was sent to the user.
+    /// </summary>
+    public Modal? LastModal { get; private set; }
 
     /// <summary>
     /// Returns the current Discord configuration.
@@ -108,6 +152,17 @@ public class TestInteractionContextWrapper : IInteractionContextWrapper
     }
 
     /// <summary>
+    /// Returns the ban permissions for a Discord user.
+    /// </summary>
+    /// <param name="domain">Domain of the bans to get the permissions for.</param>
+    /// <param name="discordUserId">Discord user id to check the permissions for.</param>
+    /// <returns>Response for the ban permissions.</returns>
+    public Task<BanPermissionResponse> GetPermissionsForDiscordUserAsync(string domain, ulong discordUserId)
+    {
+        return Task.FromResult(this.BanPermissionResponse);
+    }
+
+    /// <summary>
     /// Attempts to link a Discord account to a Roblox account.
     /// </summary>
     /// <param name="domain">Domain to link the accounts in.</param>
@@ -117,6 +172,22 @@ public class TestInteractionContextWrapper : IInteractionContextWrapper
     public Task<SimpleResponse> LinkDiscordAccountAsync(string domain, ulong discordUserId, long robloxUserId)
     {
         return Task.FromResult(this.LinkDiscordAccountResponse);
+    }
+    
+    /// <summary>
+    /// Bans or unbans a list of Roblox user ids.
+    /// </summary>
+    /// <param name="domain">Domain to link the accounts in.</param>
+    /// <param name="banAction">Action to perform for the ban.</param>
+    /// <param name="discordUserId">Discord user id to ban the users as.</param>
+    /// <param name="robloxUserIds">Roblox user ids to link.</param>
+    /// <param name="displayReason">Reason to display to the users.</param>
+    /// <param name="privateReason">Reason to store internally for the bans.</param>
+    /// <param name="duration">Optional duration of the ban in seconds.</param>
+    /// <returns>Response for the bans.</returns>
+    public Task<BanResponse> BanAsync(string domain, BanAction banAction, ulong discordUserId, List<long> robloxUserIds, string displayReason, string privateReason, long? duration = null)
+    {
+        return Task.FromResult(this.BanResponse);
     }
 
     /// <summary>
@@ -134,6 +205,17 @@ public class TestInteractionContextWrapper : IInteractionContextWrapper
             Embed = embed,
             MessageComponent = components,
         };
+        return Task.CompletedTask;
+    }
+    
+    /// <summary>
+    /// Responds to the context user with a modal.
+    /// Exceptions for failed messages are not thrown.
+    /// </summary>
+    /// <param name="modal">Modal to display to the user.</param>
+    public Task RespondAsync(Modal modal)
+    {
+        this.LastModal = modal;
         return Task.CompletedTask;
     }
     
