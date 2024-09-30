@@ -228,6 +228,10 @@ public partial class BanCommands : ExtendedInteractionModuleBase
                 {
                     await context.RespondAsync("You are not authorized to ban users.");
                 }
+                else if (response.Status == ResponseStatus.GroupRankPermissionError)
+                {
+                    await context.RespondAsync("You are not authorized to ban users with the same or higher rank in the configured group.");
+                }
                 else
                 {
                     await context.RespondAsync("A configuration error occured when handling the bans.");

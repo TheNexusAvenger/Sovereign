@@ -225,6 +225,26 @@ public class BanCommandsTests
     }
 
     [Test]
+    public void TestSovereignBanGroupRankPermissionError()
+    {
+        this._interactionContext.BanResponse.Status = ResponseStatus.GroupRankPermissionError;
+        this._interactionContext.BanResponse.BannedUserIds = new List<long>() { 23456, };
+        var modal = new BanPromptModal()
+        {
+            DisplayReason = "Test Display",
+            PrivateReason = "Test Private",
+            RobloxUserIds = "123,456",
+            Duration = "2",
+        };
+        this._banCommands.SovereignBanPrompt(modal).Wait();
+        
+        var response = this._interactionContext.LastMessage!;
+        Assert.That(response.Text, Is.EqualTo("You are not authorized to ban users with the same or higher rank in the configured group."));
+        Assert.That(response.Embed, Is.Null);
+        Assert.That(response.MessageComponent, Is.Null);
+    }
+
+    [Test]
     public void TestSovereignBanError()
     {
         this._interactionContext.BanResponse.Status = ResponseStatus.Unauthorized;
