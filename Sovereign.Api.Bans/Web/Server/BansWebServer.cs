@@ -13,6 +13,14 @@ namespace Sovereign.Api.Bans.Web.Server;
 public class BansWebServer : WebServer
 {
     /// <summary>
+    /// Creates the bans web server.
+    /// </summary>
+    public BansWebServer()
+    {
+        this.Host = "*";
+    }
+    
+    /// <summary>
     /// Starts the web server.
     /// </summary>
     public async Task StartAsync()

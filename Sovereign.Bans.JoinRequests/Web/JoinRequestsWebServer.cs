@@ -14,10 +14,11 @@ namespace Sovereign.Bans.JoinRequests.Web;
 public class JoinRequestsWebServer : WebServer
 {
     /// <summary>
-    /// Creates the games web server.
+    /// Creates the join request bans web server.
     /// </summary>
     public JoinRequestsWebServer()
     {
+        this.Host = "*";
         this.Port = 9001;
     }
     

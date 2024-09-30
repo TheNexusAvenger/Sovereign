@@ -14,10 +14,11 @@ namespace Sovereign.Bans.Games.Web.Server;
 public class GamesWebServer : WebServer
 {
     /// <summary>
-    /// Creates the games web server.
+    /// Creates the game bans web server.
     /// </summary>
     public GamesWebServer()
     {
+        this.Host = "*";
         this.Port = 9000;
     }
     
