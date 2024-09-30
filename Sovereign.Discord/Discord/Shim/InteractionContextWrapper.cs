@@ -62,8 +62,7 @@ public class InteractionContextWrapper : IInteractionContextWrapper
     /// <returns>User profile for the user id.</returns>
     public async Task<UserProfileResponse> GetRobloxProfileAsync(long robloxUserId)
     {
-        var profileClient = new RobloxUserProfileClient();
-        return await profileClient.GetRobloxProfileAsync(robloxUserId);
+        return await RobloxUserProfileClient.NonCachingClient.GetRobloxProfileAsync(robloxUserId);
     }
 
     /// <summary>
@@ -102,8 +101,7 @@ public class InteractionContextWrapper : IInteractionContextWrapper
         var sovereignBansApiClient = new SovereignBansApiClient();
         return await sovereignBansApiClient.LinkDiscordAccountAsync(domain, discordUserId, robloxUserId);
     }
-
-
+    
     /// <summary>
     /// Bans or unbans a list of Roblox user ids.
     /// </summary>
@@ -119,6 +117,20 @@ public class InteractionContextWrapper : IInteractionContextWrapper
     {
         var sovereignBansApiClient = new SovereignBansApiClient();
         return await sovereignBansApiClient.BanAsync(domain, banAction, discordUserId, robloxUserIds, displayReason, privateReason, duration);
+    }
+    
+    /// <summary>
+    /// Fetches a ban record for a Roblox user id.
+    /// Due to the UI only showing 1 ban at a time, only 1 ban record at most is returned.
+    /// </summary>
+    /// <param name="domain">Domain of the bans to fetch.</param>
+    /// <param name="robloxUserId">Roblox user id to fetch the bans of.</param>
+    /// <param name="banIndex">Optional index of the ban to fetch.</param>
+    /// <returns>Response of the ban record entry.</returns>
+    public async Task<BanRecordResponse> GetBanRecordAsync(string domain, long robloxUserId, int banIndex = 0)
+    {
+        var sovereignBansApiClient = new SovereignBansApiClient();
+        return await sovereignBansApiClient.GetBanRecordAsync(domain, robloxUserId, banIndex);
     }
 
     /// <summary>

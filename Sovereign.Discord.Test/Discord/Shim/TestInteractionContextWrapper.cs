@@ -63,6 +63,11 @@ public class TestInteractionContextWrapper : IInteractionContextWrapper
     /// Response to return for a ban request.
     /// </summary>
     public BanResponse BanResponse { get; set; } = new BanResponse();
+
+    /// <summary>
+    /// Response to return for a ban record request.
+    /// </summary>
+    public BanRecordResponse BanRecordResponse { get; set; } = new BanRecordResponse();
     
     /// <summary>
     /// Discord configuration to test.
@@ -188,6 +193,19 @@ public class TestInteractionContextWrapper : IInteractionContextWrapper
     public Task<BanResponse> BanAsync(string domain, BanAction banAction, ulong discordUserId, List<long> robloxUserIds, string displayReason, string privateReason, long? duration = null)
     {
         return Task.FromResult(this.BanResponse);
+    }
+
+    /// <summary>
+    /// Fetches a ban record for a Roblox user id.
+    /// Due to the UI only showing 1 ban at a time, only 1 ban record at most is returned.
+    /// </summary>
+    /// <param name="domain">Domain of the bans to fetch.</param>
+    /// <param name="robloxUserId">Roblox user id to fetch the bans of.</param>
+    /// <param name="banIndex">Optional index of the ban to fetch.</param>
+    /// <returns>Response of the ban record entry.</returns>
+    public Task<BanRecordResponse> GetBanRecordAsync(string domain, long robloxUserId, int banIndex = 0)
+    {
+        return Task.FromResult(this.BanRecordResponse);
     }
 
     /// <summary>

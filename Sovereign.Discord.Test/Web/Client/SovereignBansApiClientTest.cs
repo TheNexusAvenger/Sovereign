@@ -89,4 +89,12 @@ public class SovereignBansApiClientTest
         var response = this._client.BanAsync("TestDomain", BanAction.Ban, 12345L, new List<long>() { 23456 }, "Test Display", "Test Private").Result;
         Assert.That(response.Status, Is.EqualTo(ResponseStatus.Success));
     }
+
+    [Test]
+    public void TestGetBanRecordAsync()
+    {
+        this._testHttpClient.SetResponse("http://localhost:8000/bans/list/?domain=TestDomain&robloxUserId=12345&start=3&max=1", HttpStatusCode.OK, "{\"status\":\"Success\"}");
+        var response = this._client.GetBanRecordAsync("TestDomain",  12345L, 3).Result;
+        Assert.That(response.Status, Is.EqualTo(ResponseStatus.Success));
+    }
 }

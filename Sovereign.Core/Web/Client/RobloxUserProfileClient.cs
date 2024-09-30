@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Net.Http;
 using System.Text.Json;
-using System.Text.Json.Serialization;
 using System.Threading.Tasks;
 using Bouncer.Web.Client.Shim;
 using Sovereign.Core.Web.Client.Response;
@@ -14,6 +13,16 @@ public class RobloxUserProfileClient
     /// HTTP client to send requests.
     /// </summary>
     private readonly IHttpClient _httpClient;
+
+    /// <summary>
+    /// Version of the RobloxUserProfileClient with caching.
+    /// </summary>
+    public static RobloxUserProfileClient CachingClient => new RobloxUserProfileClient(new CachingHttpClient());
+
+    /// <summary>
+    /// Version of the RobloxUserProfileClient with no caching.
+    /// </summary>
+    public static RobloxUserProfileClient NonCachingClient => new RobloxUserProfileClient(new HttpClientImpl());
     
     /// <summary>
     /// Creates a Roblox User Profile Client client.
@@ -22,14 +31,6 @@ public class RobloxUserProfileClient
     public RobloxUserProfileClient(IHttpClient httpClient)
     {
         this._httpClient = httpClient;
-    }
-    
-    /// <summary>
-    /// Creates a Roblox User Profile Client client.
-    /// </summary>
-    public RobloxUserProfileClient() : this(new HttpClientImpl())
-    {
-        
     }
 
     /// <summary>

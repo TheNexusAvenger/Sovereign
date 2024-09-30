@@ -77,6 +77,16 @@ public interface IInteractionContextWrapper
     /// <param name="duration">Optional duration of the ban in seconds.</param>
     /// <returns>Response for the bans.</returns>
     public Task<BanResponse> BanAsync(string domain, BanAction banAction, ulong discordUserId, List<long> robloxUserIds, string displayReason, string privateReason, long? duration = null);
+
+    /// <summary>
+    /// Fetches a ban record for a Roblox user id.
+    /// Due to the UI only showing 1 ban at a time, only 1 ban record at most is returned.
+    /// </summary>
+    /// <param name="domain">Domain of the bans to fetch.</param>
+    /// <param name="robloxUserId">Roblox user id to fetch the bans of.</param>
+    /// <param name="banIndex">Optional index of the ban to fetch.</param>
+    /// <returns>Response of the ban record entry.</returns>
+    public Task<BanRecordResponse> GetBanRecordAsync(string domain, long robloxUserId, int banIndex = 0);
     
     /// <summary>
     /// Responds to the context user in a message not seen to other users.
