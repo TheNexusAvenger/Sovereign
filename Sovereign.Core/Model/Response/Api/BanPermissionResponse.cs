@@ -42,7 +42,7 @@ public class BanPermissionResponse : BaseResponse
 }
 
 [JsonSerializable(typeof(BanPermissionResponse))]
-[JsonSourceGenerationOptions(WriteIndented = true, IncludeFields = true)]
+[JsonSourceGenerationOptions(WriteIndented = true, IncludeFields = true, DefaultIgnoreCondition = JsonIgnoreCondition.WhenWritingNull)]
 public partial class BanPermissionResponseJsonContext : JsonSerializerContext
 {
 }

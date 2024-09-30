@@ -92,7 +92,7 @@ public class ValidationErrorResponse : BaseResponse
 }
 
 [JsonSerializable(typeof(ValidationErrorResponse))]
-[JsonSourceGenerationOptions(WriteIndented = true, IncludeFields = true)]
+[JsonSourceGenerationOptions(WriteIndented = true, IncludeFields = true, DefaultIgnoreCondition = JsonIgnoreCondition.WhenWritingNull)]
 public partial class ValidationErrorResponseJsonContext : JsonSerializerContext
 {
 }

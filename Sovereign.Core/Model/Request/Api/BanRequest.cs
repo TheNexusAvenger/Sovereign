@@ -93,7 +93,7 @@ public class BanRequest
 }
 
 [JsonSerializable(typeof(BanRequest))]
-[JsonSourceGenerationOptions(WriteIndented = true, IncludeFields = true)]
+[JsonSourceGenerationOptions(WriteIndented = true, IncludeFields = true, DefaultIgnoreCondition = JsonIgnoreCondition.WhenWritingNull)]
 public partial class BanRequestJsonContext : JsonSerializerContext
 {
 }

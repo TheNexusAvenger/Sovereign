@@ -66,7 +66,7 @@ public class JoinRequestBansHealthCheckResult
 }
 
 [JsonSerializable(typeof(JoinRequestBansHealthCheckResult))]
-[JsonSourceGenerationOptions(WriteIndented = true, IncludeFields = true)]
+[JsonSourceGenerationOptions(WriteIndented = true, IncludeFields = true, DefaultIgnoreCondition = JsonIgnoreCondition.WhenWritingNull)]
 public partial class JoinRequestBansHealthCheckResultJsonContext : JsonSerializerContext
 {
 }

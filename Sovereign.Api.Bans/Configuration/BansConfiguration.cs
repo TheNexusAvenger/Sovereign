@@ -144,7 +144,7 @@ public class BansConfiguration : BaseConfiguration
 
 
 [JsonSerializable(typeof(BansConfiguration))]
-[JsonSourceGenerationOptions(WriteIndented = true, IncludeFields = true)]
+[JsonSourceGenerationOptions(WriteIndented = true, IncludeFields = true, DefaultIgnoreCondition = JsonIgnoreCondition.WhenWritingNull)]
 public partial class BansConfigurationJsonContext : JsonSerializerContext
 {
 }

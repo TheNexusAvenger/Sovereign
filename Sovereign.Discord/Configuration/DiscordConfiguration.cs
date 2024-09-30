@@ -138,7 +138,7 @@ public class DiscordConfiguration : BaseConfiguration
 }
 
 [JsonSerializable(typeof(DiscordConfiguration))]
-[JsonSourceGenerationOptions(WriteIndented = true, IncludeFields = true)]
+[JsonSourceGenerationOptions(WriteIndented = true, IncludeFields = true, DefaultIgnoreCondition = JsonIgnoreCondition.WhenWritingNull)]
 public partial class DiscordConfigurationJsonContext : JsonSerializerContext
 {
 }

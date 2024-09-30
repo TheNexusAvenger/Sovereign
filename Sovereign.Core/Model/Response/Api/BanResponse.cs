@@ -29,7 +29,7 @@ public class BanResponse : BaseResponse
 }
 
 [JsonSerializable(typeof(BanResponse))]
-[JsonSourceGenerationOptions(WriteIndented = true, IncludeFields = true)]
+[JsonSourceGenerationOptions(WriteIndented = true, IncludeFields = true, DefaultIgnoreCondition = JsonIgnoreCondition.WhenWritingNull)]
 public partial class BanResponseJsonContext : JsonSerializerContext
 {
 }

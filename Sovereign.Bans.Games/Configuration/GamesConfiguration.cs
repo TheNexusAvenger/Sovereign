@@ -64,7 +64,7 @@ public class GamesConfiguration : BaseConfiguration
 }
 
 [JsonSerializable(typeof(GamesConfiguration))]
-[JsonSourceGenerationOptions(WriteIndented = true, IncludeFields = true)]
+[JsonSourceGenerationOptions(WriteIndented = true, IncludeFields = true, DefaultIgnoreCondition = JsonIgnoreCondition.WhenWritingNull)]
 public partial class GamesConfigurationJsonContext : JsonSerializerContext
 {
 }

@@ -47,7 +47,7 @@ public class SimpleResponse : BaseResponse
 }
 
 [JsonSerializable(typeof(SimpleResponse))]
-[JsonSourceGenerationOptions(WriteIndented = true, IncludeFields = true)]
+[JsonSourceGenerationOptions(WriteIndented = true, IncludeFields = true, DefaultIgnoreCondition = JsonIgnoreCondition.WhenWritingNull)]
 public partial class SimpleResponseJsonContext : JsonSerializerContext
 {
 }

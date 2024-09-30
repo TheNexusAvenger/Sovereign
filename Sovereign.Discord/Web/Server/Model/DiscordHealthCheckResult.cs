@@ -46,7 +46,7 @@ public class DiscordHealthCheckResult
 }
 
 [JsonSerializable(typeof(DiscordHealthCheckResult))]
-[JsonSourceGenerationOptions(WriteIndented = true, IncludeFields = true)]
+[JsonSourceGenerationOptions(WriteIndented = true, IncludeFields = true, DefaultIgnoreCondition = JsonIgnoreCondition.WhenWritingNull)]
 public partial class DiscordHealthCheckResultJsonContext : JsonSerializerContext
 {
 }

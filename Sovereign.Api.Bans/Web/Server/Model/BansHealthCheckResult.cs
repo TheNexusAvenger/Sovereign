@@ -20,7 +20,7 @@ public class BansHealthCheckResult
 }
 
 [JsonSerializable(typeof(BansHealthCheckResult))]
-[JsonSourceGenerationOptions(WriteIndented = true, IncludeFields = true)]
+[JsonSourceGenerationOptions(WriteIndented = true, IncludeFields = true, DefaultIgnoreCondition = JsonIgnoreCondition.WhenWritingNull)]
 public partial class BansHealthCheckResultJsonContext : JsonSerializerContext
 {
 }

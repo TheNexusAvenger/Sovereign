@@ -24,7 +24,7 @@ public class UserProfileResponse
 }
 
 [JsonSerializable(typeof(UserProfileResponse))]
-[JsonSourceGenerationOptions(WriteIndented = true, IncludeFields = true)]
+[JsonSourceGenerationOptions(WriteIndented = true, IncludeFields = true, DefaultIgnoreCondition = JsonIgnoreCondition.WhenWritingNull)]
 public partial class UserProfileResponseJsonContext : JsonSerializerContext
 {
 }
