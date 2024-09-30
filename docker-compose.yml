@@ -83,6 +83,31 @@ services:
     volumes:
       - ./configurations:/configurations/
       - ./persistence:/data/
+  
+  sovereign-bans-discord:
+    container_name: SovereignBansDiscord
+    build:
+      context: .
+      dockerfile: ./Dockerfile
+      args:
+        - APP_NAME=Sovereign.Discord
+        - PORT=7000
+    environment:
+      - CONFIGURATION_FILE_LOCATION=/configurations/discord.json
+      - SOVEREIGN_BANS_API_BASE_URL=http://sovereign-api-bans:8000
+    restart: always
+    networks:
+      - sovereign
+    depends_on:
+      - sovereign-api-bans
+    healthcheck:
+      test: ["CMD", "wget", "--content-on-error", "-qO-", "http://localhost:7000/health"]
+      interval: 2m
+      timeout: 10s
+      retries: 3
+      start_period: 10s
+    volumes:
+      - ./configurations:/configurations/
 
 networks:
   sovereign:
