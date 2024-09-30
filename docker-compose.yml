@@ -11,8 +11,8 @@ services:
       - CONFIGURATION_FILE_LOCATION=/configurations/api.bans.json
       - DATABASE_DIRECTORY_LOCATION=/data/
       - INTERNAL_WEBHOOK_ENDPOINTS=http://sovereign-bans-games:9000/sovereign/webhook,http://sovereign-bans-join-requests:9001/sovereign/webhook
-      # INTERNAL_WEBHOOK_ENDPOINTS should be overriden in a docker-compose.override.yml.
-      - INTERNAL_WEBHOOK_ENDPOINTS=DEFAULT_WEBHOOK_SECRET
+      # INTERNAL_WEBHOOK_SECRET_KEY should be overriden in a docker-compose.override.yml.
+      - INTERNAL_WEBHOOK_SECRET_KEY=DEFAULT_WEBHOOK_SECRET
     restart: always
     networks:
       - sovereign
@@ -39,8 +39,8 @@ services:
     environment:
       - CONFIGURATION_FILE_LOCATION=/configurations/bans.games.json
       - DATABASE_DIRECTORY_LOCATION=/data/
-      # INTERNAL_WEBHOOK_ENDPOINTS should be overriden in a docker-compose.override.yml.
-      - INTERNAL_WEBHOOK_ENDPOINTS=DEFAULT_WEBHOOK_SECRET
+      # INTERNAL_WEBHOOK_SECRET_KEY should be overriden in a docker-compose.override.yml.
+      - INTERNAL_WEBHOOK_SECRET_KEY=DEFAULT_WEBHOOK_SECRET
     restart: always
     networks:
       - sovereign
@@ -67,8 +67,8 @@ services:
     environment:
       - CONFIGURATION_FILE_LOCATION=/configurations/bans.joinrequests.json
       - DATABASE_DIRECTORY_LOCATION=/data/
-      # INTERNAL_WEBHOOK_ENDPOINTS should be overriden in a docker-compose.override.yml.
-      - INTERNAL_WEBHOOK_ENDPOINTS=DEFAULT_WEBHOOK_SECRET
+      # INTERNAL_WEBHOOK_SECRET_KEY should be overriden in a docker-compose.override.yml.
+      - INTERNAL_WEBHOOK_SECRET_KEY=DEFAULT_WEBHOOK_SECRET
     restart: always
     networks:
       - sovereign
