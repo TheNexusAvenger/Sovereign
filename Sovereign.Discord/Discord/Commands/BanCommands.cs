@@ -266,7 +266,7 @@ public partial class BanCommands : ExtendedInteractionModuleBase
             var privateReason = modal.PrivateReason;
             try
             {
-                var response = await context.BanAsync(domain, BanAction.Ban, context.DiscordUserId, parsedRobloxUserIds, "", privateReason);
+                var response = await context.BanAsync(domain, BanAction.Unban, context.DiscordUserId, parsedRobloxUserIds, "", privateReason);
                 if (response.Status == ResponseStatus.Success)
                 {
                     await context.RespondAsync($"Unbanned {response.UnbannedUserIds.Count} user(s).");
