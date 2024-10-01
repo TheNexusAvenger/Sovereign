@@ -184,6 +184,7 @@ public class GameBanLoop : BaseConfigurableLoop<GameConfiguration>
                 await using var bansContext = new BansContext(this.OverrideBansDatabasePath,
                     connectMode: DatabaseConnectMode.ReadOnly);
                 var bansQuery = bansContext.GetCurrentBans(domain).Take(BansToIndexInBatch);
+                Logger.Debug($"Fetching {BansToIndexInBatch} bans for {domain} game {gameId} starting at index {this.LastSuccessfulIndex ?? 0}.");
                 if (this.LastSuccessfulIndex.HasValue)
                 {
                     bansQuery = bansQuery.Skip(this.LastSuccessfulIndex.Value + 1);
