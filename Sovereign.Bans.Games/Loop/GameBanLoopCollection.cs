@@ -11,6 +11,7 @@ using Sovereign.Bans.Games.Web.Server.Model;
 using Sovereign.Core.Database;
 using Sovereign.Core.Database.Model.Api;
 using Sovereign.Core.Model.Response;
+using Sovereign.Core.Web.Client;
 using Sovereign.Core.Web.Server.Request;
 
 namespace Sovereign.Bans.Games.Loop;
@@ -21,11 +22,16 @@ public class GameBanLoopCollection : GenericLoopCollection<GameBanLoop, GamesCon
     /// Returns the status of the loops.
     /// </summary>
     /// <returns>The status of the loops.</returns>
-    public List<GameBansGameLoopHealthCheckResult> GetStatus()
+    public async Task<GameBansHealthCheckResult> GetStatusAsync()
     {
         var loopStatuses = new List<GameBansGameLoopHealthCheckResult>();
+        var openCloudStatuses = new List<GameBansOpenCloudHealthCheckResult>();
+        var openCloudKeyToStatus = new Dictionary<string, HealthCheckResultStatus>();
         foreach (var (_, loop) in this.ActiveLoops)
         {
+            // Add the loop status.
+            var domain = loop.Configuration.Domain!;
+            var gameId = loop.Configuration.GameId!.Value;
             var healthCheckStatus = HealthCheckResultStatus.Up;
             if (loop.Status == GameBanLoopStatus.InvalidApiKey || loop.Status == GameBanLoopStatus.Error)
             {
@@ -34,12 +40,37 @@ public class GameBanLoopCollection : GenericLoopCollection<GameBanLoop, GamesCon
             loopStatuses.Add(new GameBansGameLoopHealthCheckResult()
             {
                 Status = healthCheckStatus,
-                Domain = loop.Configuration.Domain!,
-                GameId = loop.Configuration.GameId!.Value,
+                Domain = domain,
+                GameId = gameId,
                 LastStepStatus = loop.Status,
             });
+            
+            // Add the Open Cloud status.
+            var apiKey = loop.Configuration.ApiKey!;
+            if (!openCloudKeyToStatus.ContainsKey(apiKey))
+            {
+                try
+                {
+                    var userRestrictionsClient = new RobloxUserRestrictionClient();
+                    userRestrictionsClient.OpenCloudApiKey = apiKey;
+                    await userRestrictionsClient.GetUserRestriction(gameId, 1);
+                    openCloudKeyToStatus[apiKey] = HealthCheckResultStatus.Up;
+                }
+                catch (Exception e)
+                {
+                    openCloudKeyToStatus[apiKey] = HealthCheckResultStatus.Down;
+                    Logger.Error($"Error occured handling health check for Open Cloud API key in {domain} game id {gameId}.\n{e}");
+                }
+            }
+            openCloudStatuses.Add(new GameBansOpenCloudHealthCheckResult()
+            {
+                Status = openCloudKeyToStatus[apiKey],
+                Domain = domain,
+                GameId = gameId,
+            });
         }
-        return loopStatuses;
+        
+        return GameBansHealthCheckResult.FromLoopHealthResults(loopStatuses, openCloudStatuses);
     }
     
     /// <summary>

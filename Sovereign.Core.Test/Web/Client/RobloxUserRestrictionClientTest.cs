@@ -40,7 +40,7 @@ public class RobloxUserRestrictionClientTest
             };
         });
 
-        this._client.BanAsync(123, 456, new string('A', 2000), new string('B', 2000), 120).Wait();
+        Assert.That(this._client.BanAsync(123, 456, new string('A', 2000), new string('B', 2000), 120).Result.StatusCode, Is.EqualTo(HttpStatusCode.OK));
     }
     
     [Test]
@@ -63,7 +63,7 @@ public class RobloxUserRestrictionClientTest
             };
         });
 
-        this._client.BanAsync(123, 456, new string('A', 2000), new string('B', 2000)).Wait();
+        Assert.That(this._client.BanAsync(123, 456, new string('A', 2000), new string('B', 2000)).Result.StatusCode, Is.EqualTo(HttpStatusCode.OK));
     }
 
     [Test]
@@ -86,7 +86,22 @@ public class RobloxUserRestrictionClientTest
             };
         });
 
-        this._client.UnbanAsync(123, 456).Wait();
+        Assert.That(this._client.UnbanAsync(123, 456).Result.StatusCode, Is.EqualTo(HttpStatusCode.OK));
+    }
+
+    [Test]
+    public void TestGetUserRestriction()
+    {
+        this._testHttpClient.SetResponseResolver($"https://apis.roblox.com/cloud/v2/universes/123/user-restrictions/456", (request) =>
+        {
+            return new HttpStringResponseMessage()
+            {
+                StatusCode = HttpStatusCode.OK,
+                Content = "{}",
+            };
+        });
+
+        Assert.That(this._client.GetUserRestriction(123, 456).Result.StatusCode, Is.EqualTo(HttpStatusCode.OK));
     }
     
     [Test]

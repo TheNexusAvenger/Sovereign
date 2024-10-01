@@ -101,6 +101,19 @@ public class RobloxUserRestrictionClient
     }
 
     /// <summary>
+    /// Unbans a user.
+    /// </summary>
+    /// <param name="universeId">Id of the universe to get the user restriction from.</param>
+    /// <param name="userId">Roblox user id to get the restriction from the universe.</param>
+    /// <returns>The current user restriction.</returns>
+    public async Task<UserRestrictionResponse> GetUserRestriction(long universeId, long userId)
+    {
+        return await this._robloxClient.RequestAsync(HttpMethod.Get,
+            $"https://apis.roblox.com/cloud/v2/universes/{universeId}/user-restrictions/{userId}",
+            UserRestrictionResponseJsonContext.Default.UserRestrictionResponse);
+    }
+
+    /// <summary>
     /// Clamps a string to a given maximum length.
     /// </summary>
     /// <param name="inputString">Input string to clamp.</param>

@@ -40,7 +40,7 @@ public class GamesWebServer : WebServer
             // Add the health endpoint.
             app.MapGet("/health", async (httpContext) =>
             {
-                var healthCheckResult = GameBansHealthCheckResult.FromLoopHealthResults(gameBanLoopCollection.GetStatus());
+                var healthCheckResult = await gameBanLoopCollection.GetStatusAsync();
                 var statusCode = (healthCheckResult.Status == HealthCheckResultStatus.Up ? 200 : 503);
                 var response = Results.Json(healthCheckResult, statusCode: statusCode, jsonTypeInfo: GameBansHealthCheckResultJsonContext.Default.GameBansHealthCheckResult);
                 await response.ExecuteAsync(httpContext);
