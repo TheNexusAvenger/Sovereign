@@ -32,6 +32,8 @@ namespace Sovereign.Core.Database.Model.Bans.Compiled
             var defaultTableMappings = new List<TableMappingBase<ColumnMappingBase>>();
             gameBansHistoryEntry.SetRuntimeAnnotation("Relational:DefaultMappings", defaultTableMappings);
             var sovereignCoreDatabaseModelBansGameBansHistoryEntryTableBase = new TableBase("Sovereign.Core.Database.Model.Bans.GameBansHistoryEntry", null, relationalModel);
+            var banIdColumnBase = new ColumnBase<ColumnMappingBase>("BanId", "INTEGER", sovereignCoreDatabaseModelBansGameBansHistoryEntryTableBase);
+            sovereignCoreDatabaseModelBansGameBansHistoryEntryTableBase.Columns.Add("BanId", banIdColumnBase);
             var domainColumnBase = new ColumnBase<ColumnMappingBase>("Domain", "TEXT", sovereignCoreDatabaseModelBansGameBansHistoryEntryTableBase);
             sovereignCoreDatabaseModelBansGameBansHistoryEntryTableBase.Columns.Add("Domain", domainColumnBase);
             var gameIdColumnBase = new ColumnBase<ColumnMappingBase>("GameId", "INTEGER", sovereignCoreDatabaseModelBansGameBansHistoryEntryTableBase);
@@ -45,6 +47,7 @@ namespace Sovereign.Core.Database.Model.Bans.Compiled
             sovereignCoreDatabaseModelBansGameBansHistoryEntryTableBase.AddTypeMapping(sovereignCoreDatabaseModelBansGameBansHistoryEntryMappingBase, false);
             defaultTableMappings.Add(sovereignCoreDatabaseModelBansGameBansHistoryEntryMappingBase);
             RelationalModel.CreateColumnMapping((ColumnBase<ColumnMappingBase>)idColumnBase, gameBansHistoryEntry.FindProperty("Id")!, sovereignCoreDatabaseModelBansGameBansHistoryEntryMappingBase);
+            RelationalModel.CreateColumnMapping((ColumnBase<ColumnMappingBase>)banIdColumnBase, gameBansHistoryEntry.FindProperty("BanId")!, sovereignCoreDatabaseModelBansGameBansHistoryEntryMappingBase);
             RelationalModel.CreateColumnMapping((ColumnBase<ColumnMappingBase>)domainColumnBase, gameBansHistoryEntry.FindProperty("Domain")!, sovereignCoreDatabaseModelBansGameBansHistoryEntryMappingBase);
             RelationalModel.CreateColumnMapping((ColumnBase<ColumnMappingBase>)gameIdColumnBase, gameBansHistoryEntry.FindProperty("GameId")!, sovereignCoreDatabaseModelBansGameBansHistoryEntryMappingBase);
             RelationalModel.CreateColumnMapping((ColumnBase<ColumnMappingBase>)timeColumnBase, gameBansHistoryEntry.FindProperty("Time")!, sovereignCoreDatabaseModelBansGameBansHistoryEntryMappingBase);
@@ -54,6 +57,8 @@ namespace Sovereign.Core.Database.Model.Bans.Compiled
             var gameBansHistoryTable = new Table("GameBansHistory", null, relationalModel);
             var idColumn = new Column("Id", "INTEGER", gameBansHistoryTable);
             gameBansHistoryTable.Columns.Add("Id", idColumn);
+            var banIdColumn = new Column("BanId", "INTEGER", gameBansHistoryTable);
+            gameBansHistoryTable.Columns.Add("BanId", banIdColumn);
             var domainColumn = new Column("Domain", "TEXT", gameBansHistoryTable);
             gameBansHistoryTable.Columns.Add("Domain", domainColumn);
             var gameIdColumn = new Column("GameId", "INTEGER", gameBansHistoryTable);
@@ -73,6 +78,7 @@ namespace Sovereign.Core.Database.Model.Bans.Compiled
             gameBansHistoryTable.AddTypeMapping(gameBansHistoryTableMapping, false);
             tableMappings.Add(gameBansHistoryTableMapping);
             RelationalModel.CreateColumnMapping(idColumn, gameBansHistoryEntry.FindProperty("Id")!, gameBansHistoryTableMapping);
+            RelationalModel.CreateColumnMapping(banIdColumn, gameBansHistoryEntry.FindProperty("BanId")!, gameBansHistoryTableMapping);
             RelationalModel.CreateColumnMapping(domainColumn, gameBansHistoryEntry.FindProperty("Domain")!, gameBansHistoryTableMapping);
             RelationalModel.CreateColumnMapping(gameIdColumn, gameBansHistoryEntry.FindProperty("GameId")!, gameBansHistoryTableMapping);
             RelationalModel.CreateColumnMapping(timeColumn, gameBansHistoryEntry.FindProperty("Time")!, gameBansHistoryTableMapping);

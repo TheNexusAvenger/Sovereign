@@ -51,7 +51,7 @@ public class HandledBanCache
         using var context = new GameBansContext(databaseFilePath);
         this._handledBanIds = context.GameBansHistory
             .Where(entry => entry.Domain.ToLower() == domain.ToLower() && entry.GameId == gameId)
-            .Select(entry => entry.Id)
+            .Select(entry => entry.BanId)
             .ToHashSet();
     }
 
@@ -82,7 +82,7 @@ public class HandledBanCache
                 Logger.Trace($"Setting ban {banId} for domain {this.Domain} with game id {this.GameId} as handled.");
                 context.GameBansHistory.Add(new GameBansHistoryEntry()
                 {
-                    Id = banId,
+                    BanId = banId,
                     Domain = this.Domain,
                     GameId = this.GameId,
                 });

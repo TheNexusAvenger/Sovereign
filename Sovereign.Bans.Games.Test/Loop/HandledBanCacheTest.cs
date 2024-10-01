@@ -26,19 +26,19 @@ public class HandledBanCacheTest
         using var context = new GameBansContext(this._databasePath);
         context.GameBansHistory.Add(new GameBansHistoryEntry()
         {
-            Id = 1,
+            BanId = 1,
             Domain = "testDomain",
             GameId = 12345,
         });
         context.GameBansHistory.Add(new GameBansHistoryEntry()
         {
-            Id = 2,
+            BanId = 2,
             Domain = "otherDomain",
             GameId = 12345,
         });
         context.GameBansHistory.Add(new GameBansHistoryEntry()
         {
-            Id = 3,
+            BanId = 3,
             Domain = "testDomain",
             GameId = 23436,
         });
@@ -57,10 +57,11 @@ public class HandledBanCacheTest
         using var context = new GameBansContext(this._databasePath);
         context.GameBansHistory.Add(new GameBansHistoryEntry()
         {
-            Id = 1,
+            BanId = 1,
             Domain = "testDomain",
             GameId = 12345,
         });
+        context.SaveChanges();
         
         var handledBanCache = new HandledBanCache("TestDomain", 12345, this._databasePath);
         handledBanCache.SetHandledAsync(new List<long>() { 1, 2, 3 }).Wait();
@@ -71,13 +72,13 @@ public class HandledBanCacheTest
         using var newContext = new GameBansContext(this._databasePath);
         var handledBans = context.GameBansHistory.ToList();
         Assert.That(handledBans.Count, Is.EqualTo(3));
-        Assert.That(handledBans[0].Id, Is.EqualTo(1));
+        Assert.That(handledBans[0].BanId, Is.EqualTo(1));
         Assert.That(handledBans[0].Domain, Is.EqualTo("testDomain"));
         Assert.That(handledBans[0].GameId, Is.EqualTo(12345));
-        Assert.That(handledBans[1].Id, Is.EqualTo(2));
+        Assert.That(handledBans[1].BanId, Is.EqualTo(2));
         Assert.That(handledBans[1].Domain, Is.EqualTo("TestDomain"));
         Assert.That(handledBans[1].GameId, Is.EqualTo(12345));
-        Assert.That(handledBans[2].Id, Is.EqualTo(3));
+        Assert.That(handledBans[2].BanId, Is.EqualTo(3));
         Assert.That(handledBans[2].Domain, Is.EqualTo("TestDomain"));
         Assert.That(handledBans[2].GameId, Is.EqualTo(12345));
     }
