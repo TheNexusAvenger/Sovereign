@@ -32,6 +32,14 @@ public abstract class BaseProgram<T> where T : BaseConfiguration
         Logger.SetMinimumLogLevel(minimumLogLevel);
         Logger.Debug($"Set log level to {minimumLogLevel}.");
         
+        // Connect the log level changing.
+        Configurations.GetConfigurationState<T>().ConfigurationChanged += (newConfiguration) =>
+        {
+            var newMinimumLogLevel = configuration.Logging.MinimumLogLevel;
+            Logger.SetMinimumLogLevel(newMinimumLogLevel);
+            Logger.Info($"Changed log level to {newMinimumLogLevel}.");
+        };
+        
         // Run the rest of the program.
         this.Run();
         Logger.WaitForCompletionAsync().Wait();
