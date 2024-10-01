@@ -64,6 +64,6 @@ public class BansHealthCheckState
     /// </summary>
     private void UpdateVerifyRulesResult()
     {
-        this._lastVerifyRulesResult = ConfigurationVerification.VerifyRules();
+        this._lastVerifyRulesResult = BansConfigurationVerification.VerifyRules();
     }
 }
