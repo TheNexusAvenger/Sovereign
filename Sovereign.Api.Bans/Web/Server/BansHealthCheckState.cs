@@ -1,5 +1,4 @@
-﻿using Bouncer.Diagnostic;
-using Bouncer.Diagnostic.Model;
+﻿using Bouncer.Diagnostic.Model;
 using Bouncer.State;
 using Bouncer.Web.Server.Model;
 using Sovereign.Api.Bans.Configuration;
