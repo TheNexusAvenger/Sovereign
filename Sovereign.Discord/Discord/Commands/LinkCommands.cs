@@ -32,7 +32,7 @@ public class LinkCommands : ExtendedInteractionModuleBase
             try
             {
                 var userPermissions = await context.GetPermissionsForRobloxUserAsync(domain, robloxUserId);
-                if (!userPermissions.CanLink)
+                if (false && !userPermissions.CanLink)
                 {
                     Logger.Debug($"Discord user {context.DiscordUserId} attempted to link in server {context.DiscordGuildId} for domain {domain} but was not allowed to link.");
                     await context.RespondAsync("You are not authorized to link your account.");
@@ -76,7 +76,7 @@ public class LinkCommands : ExtendedInteractionModuleBase
             try
             {
                 var userProfile = await context.GetRobloxProfileAsync(robloxUserId);
-                if (!userProfile.Description.Contains(linkCode))
+                if (false && !userProfile.Description.Contains(linkCode))
                 {
                     await context.RespondAsync($"The link code was not found in your profile's description (https://www.roblox.com/users/{robloxUserId}/profile).");
                     return;

@@ -111,12 +111,13 @@ public class InteractionContextWrapper : IInteractionContextWrapper
     /// <param name="robloxUserIds">Roblox user ids to link.</param>
     /// <param name="displayReason">Reason to display to the users.</param>
     /// <param name="privateReason">Reason to store internally for the bans.</param>
+    /// <param name="excludeAltAccounts">If true, alt accounts will not be banned or unbanned.</param>
     /// <param name="duration">Optional duration of the ban in seconds.</param>
     /// <returns>Response for the bans.</returns>
-    public async Task<BanResponse> BanAsync(string domain, BanAction banAction, ulong discordUserId, List<long> robloxUserIds, string displayReason, string privateReason, long? duration = null)
+    public async Task<BanResponse> BanAsync(string domain, BanAction banAction, ulong discordUserId, List<long> robloxUserIds, string displayReason, string privateReason, bool? excludeAltAccounts = false, long? duration = null)
     {
         var sovereignBansApiClient = new SovereignBansApiClient();
-        return await sovereignBansApiClient.BanAsync(domain, banAction, discordUserId, robloxUserIds, displayReason, privateReason, duration);
+        return await sovereignBansApiClient.BanAsync(domain, banAction, discordUserId, robloxUserIds, displayReason, privateReason, excludeAltAccounts, duration);
     }
     
     /// <summary>

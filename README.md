@@ -277,6 +277,8 @@ Entries:
       when presenting the ban modal.
     - `DefaultPrivateReason` *(Optional)*: Default private reason to fill
       when presenting the ban modal.
+    - `ExcludeAltAccounts` *(Optional)*: If true, alt accounts will not be
+      banned or unbanned.
 - `Logging` *(Required)*: Logging configuration.
   - `MinimumLogLevel` *(Required)*: Minimum log level to display.
     Can be `Trace`, `Debug`, `Information`, `Warning`, `Error`,
@@ -311,11 +313,13 @@ Example configuration:
           "Name": "Exploiting",
           "Description": "Please specify details in the private reason.",
           "DefaultDisplayReason": "Banned for exploiting. See the game's description.",
-          "DefaultPrivateReason": "No exploit information stored."
+          "DefaultPrivateReason": "No exploit information stored.",
+          "ExcludeAltAccounts": false
         },
         {
           "Name": "Other",
-          "DefaultDisplayReason": "You are banned. See the Training Facility's social links to appeal."
+          "DefaultDisplayReason": "You are banned. See the Training Facility's social links to appeal.",
+          "ExcludeAltAccounts": true
         }
       ]
     }

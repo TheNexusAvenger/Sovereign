@@ -186,8 +186,8 @@ public partial class BanCommands : ExtendedInteractionModuleBase
     /// <summary>
     /// Handles a ban prompt being completed.
     /// </summary>
-    [ModalInteraction("SovereignBanPrompt")]
-    public async Task SovereignBanPrompt(BanPromptModal modal)
+    [ModalInteraction("SovereignBanPrompt:*")]
+    public async Task SovereignBanPrompt(string excludeAltAccounts, BanPromptModal modal)
     {
         try
         {
@@ -219,7 +219,8 @@ public partial class BanCommands : ExtendedInteractionModuleBase
             var privateReason = modal.PrivateReason;
             try
             {
-                var response = await context.BanAsync(domain, BanAction.Ban, context.DiscordUserId, parsedRobloxUserIds, displayMessage, privateReason, durationSeconds);
+                var excludeAltAccountsBool = (excludeAltAccounts.Equals("true", StringComparison.CurrentCultureIgnoreCase));
+                var response = await context.BanAsync(domain, BanAction.Ban, context.DiscordUserId, parsedRobloxUserIds, displayMessage, privateReason, excludeAltAccountsBool, durationSeconds);
                 if (response.Status == ResponseStatus.Success)
                 {
                     await context.RespondAsync($"Banned {response.BannedUserIds.Count} user(s).");
@@ -391,7 +392,7 @@ public partial class BanCommands : ExtendedInteractionModuleBase
         // Build and present the ban prompt.
         var modalBuilder = new ModalBuilder()
             .WithTitle($"Ban ({banOptionName})")
-            .WithCustomId("SovereignBanPrompt")
+            .WithCustomId($"SovereignBanPrompt:{banOption.ExcludeAltAccounts == true}")
             .AddTextInput("Display Reason", "DisplayReason", TextInputStyle.Paragraph, maxLength: MaxDisplayMessageLength, required: false, value: banOption.DefaultDisplayReason)
             .AddTextInput("Private Reason", "PrivateReason", TextInputStyle.Paragraph, maxLength: MaxPrivateMessageLength, required: false, value: banOption.DefaultPrivateReason)
             .AddTextInput("Roblox User Ids", "RobloxUserIds", TextInputStyle.Paragraph, value: banIdList)

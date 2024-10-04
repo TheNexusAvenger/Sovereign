@@ -74,9 +74,10 @@ public interface IInteractionContextWrapper
     /// <param name="robloxUserIds">Roblox user ids to link.</param>
     /// <param name="displayReason">Reason to display to the users.</param>
     /// <param name="privateReason">Reason to store internally for the bans.</param>
+    /// <param name="excludeAltAccounts">If true, alt accounts will not be banned or unbanned.</param>
     /// <param name="duration">Optional duration of the ban in seconds.</param>
     /// <returns>Response for the bans.</returns>
-    public Task<BanResponse> BanAsync(string domain, BanAction banAction, ulong discordUserId, List<long> robloxUserIds, string displayReason, string privateReason, long? duration = null);
+    public Task<BanResponse> BanAsync(string domain, BanAction banAction, ulong discordUserId, List<long> robloxUserIds, string displayReason, string privateReason, bool? excludeAltAccounts = false, long? duration = null);
 
     /// <summary>
     /// Fetches a ban record for a Roblox user id.

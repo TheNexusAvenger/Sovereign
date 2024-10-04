@@ -180,7 +180,7 @@ public class BanCommandsTests
             RobloxUserIds = "123,test  ",
             Duration = "",
         };
-        this._banCommands.SovereignBanPrompt(modal).Wait();
+        this._banCommands.SovereignBanPrompt("false", modal).Wait();
         
         var response = this._interactionContext.LastMessage!;
         Assert.That(response.Text, Is.EqualTo("The Roblox user id \"test\" could not be parsed."));
@@ -196,7 +196,7 @@ public class BanCommandsTests
             RobloxUserIds = "123,456",
             Duration = "test",
         };
-        this._banCommands.SovereignBanPrompt(modal).Wait();
+        this._banCommands.SovereignBanPrompt("false", modal).Wait();
         
         var response = this._interactionContext.LastMessage!;
         Assert.That(response.Text, Is.EqualTo("Duration \"test\" could not be parsed."));
@@ -216,7 +216,7 @@ public class BanCommandsTests
             RobloxUserIds = "123,456",
             Duration = "2",
         };
-        this._banCommands.SovereignBanPrompt(modal).Wait();
+        this._banCommands.SovereignBanPrompt("false", modal).Wait();
         
         var response = this._interactionContext.LastMessage!;
         Assert.That(response.Text, Is.EqualTo("You are not authorized to ban users."));
@@ -236,7 +236,7 @@ public class BanCommandsTests
             RobloxUserIds = "123,456",
             Duration = "2",
         };
-        this._banCommands.SovereignBanPrompt(modal).Wait();
+        this._banCommands.SovereignBanPrompt("false", modal).Wait();
         
         var response = this._interactionContext.LastMessage!;
         Assert.That(response.Text, Is.EqualTo("You are not authorized to ban users with the same or higher rank in the configured group."));
@@ -256,7 +256,7 @@ public class BanCommandsTests
             RobloxUserIds = "123,456",
             Duration = "2",
         };
-        this._banCommands.SovereignBanPrompt(modal).Wait();
+        this._banCommands.SovereignBanPrompt("false", modal).Wait();
         
         var response = this._interactionContext.LastMessage!;
         Assert.That(response.Text, Is.EqualTo("A configuration error occured when handling the bans."));
@@ -276,7 +276,7 @@ public class BanCommandsTests
             RobloxUserIds = "123,456",
             Duration = "2",
         };
-        this._banCommands.SovereignBanPrompt(modal).Wait();
+        this._banCommands.SovereignBanPrompt("false", modal).Wait();
         
         var response = this._interactionContext.LastMessage!;
         Assert.That(response.Text, Is.EqualTo("Banned 1 user(s)."));

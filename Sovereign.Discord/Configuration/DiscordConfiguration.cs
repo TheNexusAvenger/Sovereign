@@ -39,6 +39,11 @@ public class DiscordDomainBanOptionConfiguration
     /// Default private reason to show when banning.
     /// </summary>
     public string? DefaultPrivateReason { get; set; }
+
+    /// <summary>
+    /// If true, alt accounts will not be banned or unbanned.
+    /// </summary>
+    public bool? ExcludeAltAccounts { get; set; } = false;
 }
 
 public class DiscordDomainConfiguration
@@ -118,17 +123,20 @@ public class DiscordConfiguration : BaseConfiguration
                             Name = "Exploiting",
                             Description = "Please specify details in the private reason. Use the Discord server in the game's social links to appeal",
                             DefaultDisplayReason = "Banned for exploiting.",
+                            ExcludeAltAccounts = false,
                         },
                         new DiscordDomainBanOptionConfiguration()
                         {
                             Name = "Harassment",
                             DefaultDisplayReason = "Banned for harassment. Use the Discord server in the game's social links to appeal",
                             DefaultPrivateReason = "No information given.",
+                            ExcludeAltAccounts = false,
                         },
                         new DiscordDomainBanOptionConfiguration()
                         {
                             Name = "Other",
                             DefaultDisplayReason = "You are banned. Use the Discord server in the game's social links to appeal",
+                            ExcludeAltAccounts = true,
                         },
                     },
                 },
